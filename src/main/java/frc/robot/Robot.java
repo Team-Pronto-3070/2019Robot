@@ -23,6 +23,11 @@ public class Robot extends IterativeRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  
+
+  Drive drive;
+  Joystick joyL, joyR;
+  ADIS116448 imu;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -30,9 +35,18 @@ public class Robot extends IterativeRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
+    m_chooser.addDefault("Default Auto", kDefaultAuto);
+    m_chooser.addObject("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    SmartDashboard.putNumber("Angle", 0);
+
+    drive = new Drive();
+    joyL = new Joystick();
+    joyR = new Joystick();
+
+    imu = new ADIS16448();
+
   }
 
   /**
@@ -87,6 +101,9 @@ public class Robot extends IterativeRobot {
    */
   @Override
   public void teleopPeriodic() {
+
+    Drive.tankDrive(joyL.getRawAxis(1),joyR.getRawAxis(1));
+    SmartDashboard.putNumber("Angle", imu.getAngle);
   }
 
   /**
