@@ -11,7 +11,7 @@ public class Drive implements Pronstants {
 
         
 
-    public Drive(ADIS16448 imu)  {
+    public Drive(ADIS16448_IMU imu)  {
         
         talon1 = new TalonSRX(TALON1_PORT);
         talon2 = new TalonSRX(TALON2_PORT); 
@@ -24,7 +24,7 @@ public class Drive implements Pronstants {
         joyL = new Joystick(JOYL_PORT);
         joyR = new Joystick(JOYR_PORT);
 
-        imu= new ADIS16448();
+        imu= new ADIS16448_IMU();
 
     }
 
@@ -57,7 +57,7 @@ public class Drive implements Pronstants {
 
     public void driveToAngle(double angle) {
         imu.reset();
-        if((gyro.getAngle() - angle) >= GYRO_DEADZONE){
+        if((imu.getAngle() - angle) >= GYRO_DEADZONE){
                 rightDrive(-TURN_SPEED);
                 leftDrive(TURN_SPEED);
             }          
