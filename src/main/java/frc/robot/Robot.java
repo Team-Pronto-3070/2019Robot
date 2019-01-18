@@ -10,7 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.wpilibj.Joystick;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -18,11 +18,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends IterativeRobot {
+public class Robot implements ADIS116448 {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  
+
+  Drive drive;
+  Joystick joyL, joyR;
+  ADIS116448 imu;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -30,9 +35,18 @@ public class Robot extends IterativeRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
+    m_chooser.addDefault("Default Auto", kDefaultAuto);
+    m_chooser.addObject("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    SmartDashboard.putNumber("Angle", 0);
+
+    drive = new Drive(ADIS116448);
+    joyL = new Joystick();
+    joyR = new Joystick();
+
+    imu = new ADIS16448();
+
   }
 
   /**
@@ -87,6 +101,9 @@ public class Robot extends IterativeRobot {
    */
   @Override
   public void teleopPeriodic() {
+
+    Drive.tankDrive(joyL.getRawAxis(1),joyR.getRawAxis(1));
+    SmartDashboard.putNumber("Angle", imu.getAngle);
   }
 
   /**
