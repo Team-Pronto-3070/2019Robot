@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.analog.adis16448.frc;
+package frc.robot;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -263,13 +263,13 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
     DigitalOutput m_reset_out = new DigitalOutput(18);  // Drive MXP DIO8 low
     Timer.delay(0.01);  // Wait 10ms
     m_reset_out.close();
-    DigitalInput m_reset_in = new DigitalInput(18);  // Set MXP DIO8 high
+    //DigitalInput m_reset_in = new DigitalInput(18);  // Set MXP DIO8 high
     Timer.delay(0.5);  // Wait 500ms
 
     m_spi = new SPI(SPI.Port.kMXP);
     m_spi.setClockRate(1000000);
     m_spi.setMSBFirst();
-    m_spi.setSampleDataOnFalling();
+    //m_spi.setSampleDataOnFalling();
     m_spi.setClockActiveLow();
     m_spi.setChipSelectActiveLow();
     
@@ -277,7 +277,7 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
     
     // Validate the product ID
     if (readRegister(kRegPROD_ID) != 16448) {
-      m_spi.free();
+      //m_spi.free();
       m_spi = null;
       m_samples = null;
       m_samples_mutex = null;
@@ -469,11 +469,11 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
     } catch (InterruptedException e) {
     }
     if (m_interrupt != null) {
-      m_interrupt.free();
+      //m_interrupt.free();
       m_interrupt = null;
     }
     if (m_spi != null) {
-      m_spi.free();
+      //m_spi.free();
       m_spi = null;
     }
   }

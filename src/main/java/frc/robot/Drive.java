@@ -1,19 +1,19 @@
-package org.usfirst.frc.team3070.robot;
+package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.TalonSRX;
-import edu.wpi.first.wpilibj.talon;
+import com.ctre.phoenix.motorcontrol.can.*;
+
 
 public class Drive implements Pronstants {
 
-    TalonSRX talonFL, talonBL, talonFR, talonBR, talon1, talon2;
+    Talon talonFL, talonBL, talonFR, talonBR, talon1, talon2;
     Joystick joyL, joyR;
 
         
 
     public Drive(ADIS16448 imu)  {
         
-        talon1 = new TalongSRX(TALON1_PORT);
+        talon1 = new TalonSRX(TALON1_PORT);
         talon2 = new TalonSRX(TALON2_PORT); 
 
         talonFL = new TalonSRX(TALONFL_PORT);
