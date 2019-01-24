@@ -1,16 +1,27 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2017-2018 FIRST. All Rights Reserved.                        */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/*----------------------   be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.*;
+import java.util.Map;
+import java.lang.Double;
+
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.cameraserver.CameraServer;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -18,7 +29,8 @@ import edu.wpi.first.wpilibj.Joystick;
  * creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot implements ADIS116448 {
+public class Robot extends IterativeRobot implements Pronstants{
+  public static final ADIS16448_IMU imu = new ADIS16448_IMU();
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
@@ -27,26 +39,42 @@ public class Robot implements ADIS116448 {
 
   Drive drive;
   Joystick joyL, joyR;
-  ADIS116448 imu;
+  AnalogInput pressure;
+  // ShuffleboardTab shuffleboardtab;
+  private NetworkTableEntry gyroYawEntry;
+  
 
+  
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
   @Override
   public void robotInit() {
-    m_chooser.addDefault("Default Auto", kDefaultAuto);
-    m_chooser.addObject("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
-
     SmartDashboard.putNumber("Angle", 0);
 
-    drive = new Drive(ADIS116448);
-    joyL = new Joystick();
-    joyR = new Joystick();
+    drive = new Drive(imu);
+    joyL = new Joystick(JOYL_PORT);
+    joyR = new Joystick(JOYR_PORT);
+    pressure = new AnalogInput(0);
 
-    imu = new ADIS16448();
-
+    gyroYawEntry = Shuffleboard.getTab("Gyro")
+      .add("Gyro Yaw", new Double(1))
+      .withWidget(BuiltInWidgets.kDial)
+      .withProperties(Map.of("min", -180, "max", 180))
+      .getEntry();
+      
+		// Get the UsbCamera from CameraServer
+    UsbCamera camera = CameraServer.getInstance().startAutomaticCapture("Front Camera", 0);
+    UsbCamera line = CameraServer.getInstance().startAutomaticCapture("Line Camera", 1);
+		// Set the resolution
+		 camera.setResolution(320, 240);
+		 camera.setExposureAuto();
+		// Get a CvSink. This will capture Mats from the camera
+		CvSink cvSink = CameraServer.getInstance().getVideo();
+		// Setup a CvSource. This will send images back to the Dashboard
+    CvSource outputStream = CameraServer.getInstance().putVideo("Rectangle", 320, 240);
+    // imu.reset();
   }
 
   /**
@@ -59,6 +87,30 @@ public class Robot implements ADIS116448 {
    */
   @Override
   public void robotPeriodic() {
+    SmartDashboard.putNumber("Gyro-X", imu.getAngleX());
+    SmartDashboard.putNumber("Gyro-Y", imu.getAngleY());
+    SmartDashboard.putNumber("Gyro-Z", imu.getAngleZ());
+    
+    SmartDashboard.putNumber("Accel-X", imu.getAccelX());
+    SmartDashboard.putNumber("Accel-Y", imu.getAccelY());
+    SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());
+    
+    SmartDashboard.putNumber("Pitch", imu.getPitch());
+    SmartDashboard.putNumber("Roll", imu.getRoll());
+    SmartDashboard.putNumber("Yaw", imu.getYaw());
+    
+    SmartDashboard.putNumber("Pressure: ", imu.getBarometricPressure());
+    SmartDashboard.putNumber("Temperature: ", imu.getTemperature()); 
+    SmartDashboard.putNumber("pressure: ", pressure.getValue());
+   
+    
+    gyroYawEntry.setDouble(imu.getYaw());
+
+    SmartDashboard.putNumber("FR talon current", drive.talonFR.getOutputCurrent());
+    SmartDashboard.putNumber("FL talon current", drive.talonFL.getOutputCurrent());
+    SmartDashboard.putNumber("BR talon current", drive.talonBR.getOutputCurrent());
+    SmartDashboard.putNumber("BL talon current", drive.talonBL.getOutputCurrent());
+    
   }
 
   /**
@@ -102,8 +154,16 @@ public class Robot implements ADIS116448 {
   @Override
   public void teleopPeriodic() {
 
-    Drive.tankDrive(joyL.getRawAxis(1),joyR.getRawAxis(1));
-    SmartDashboard.putNumber("Angle", imu.getAngle);
+    // System.out.println("the angle is " + imu.getAngleX()) ;
+
+    //if(joyL.getRawButton(3)) {
+    //  drive.driveToAngle(90);
+
+    //}else{
+      drive.tankDrive(joyL.getRawAxis(1),joyR.getRawAxis(1));
+    
+      
+    //}
   }
 
   /**
