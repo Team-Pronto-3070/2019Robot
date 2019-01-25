@@ -105,9 +105,9 @@ public class Drive implements Pronstants {
     public void driveRamp() {
         double left = getJoystickValue(LEFT) * TAL_MAX_VALUE / 2;
         double right = getJoystickValue(RIGHT) * TAL_MAX_VALUE / 2;
-        talRM.set(ControlMode.Velocity, right * 4096 / 600);
-        talLM.set(ControlMode.Velocity, -left * 4096 / 600);
-        talLF.set(ControlMode.Follower, TALLM_PORT);
-        talRF.set(ControlMode.Follower, TALRM_PORT);
+        talonBR.set(ControlMode.Velocity, right * 4096 / 600);
+        talonBL.set(ControlMode.Velocity, -left * 4096 / 600);
+        talonFR.set(ControlMode.Follower, TALONBR_PORT);
+        talonFL.set(ControlMode.Follower, TALONBL_PORT);
     }
 }
