@@ -17,9 +17,5 @@ public interface Pronstants {
 
     public static final double TURN_SPEED = .5;
 
-    public static final boolean LEFT = true;
-    public static final boolean RIGHT = false;
-
     public static final double TAL_MAX_VALUE = 400;
-
 }

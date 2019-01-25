@@ -156,7 +156,8 @@ public class Robot extends IterativeRobot implements Pronstants {
     // drive.driveToAngle(90);
 
     // }else{
-    drive.driveRamp();
+    drive.driveRamp();  //Takes joystick inputs, curves inputs
+                        // and sets motors to curved level
 
     // }
   }
