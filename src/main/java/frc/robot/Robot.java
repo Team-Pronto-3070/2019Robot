@@ -75,6 +75,7 @@ public class Robot extends IterativeRobot implements Pronstants{
 		// Setup a CvSource. This will send images back to the Dashboard
     CvSource outputStream = CameraServer.getInstance().putVideo("Rectangle", 320, 240);
     // imu.reset();
+    imu.calibrate();
   }
 
   /**

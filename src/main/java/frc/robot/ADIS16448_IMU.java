@@ -373,7 +373,9 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
       m_gyro_offset_y = m_accum_gyro_y / m_accum_count;
       m_gyro_offset_z = m_accum_gyro_z / m_accum_count;
     }
+    System.out.println("works");
   }
+
 
   static int ToUShort(ByteBuffer buf) {
 	  return (buf.getShort(0)) & 0xFFFF;
