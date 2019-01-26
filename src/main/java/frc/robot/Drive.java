@@ -1,6 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.*;
@@ -41,6 +43,8 @@ public class Drive implements Pronstants {
         talonFL.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
         talonFR.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
+        SmartDashboard.putNumber("left encoder", talonFL.getSelectedSensorPosition());
+        SmartDashboard.putNumber("right encoder", talonFR.getSelectedSensorPosition());
 
         joyL = new Joystick(JOYL_PORT);
         joyR = new Joystick(JOYR_PORT);
