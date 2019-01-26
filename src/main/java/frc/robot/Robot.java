@@ -112,6 +112,7 @@ public class Robot extends IterativeRobot implements Pronstants{
     SmartDashboard.putNumber("BR talon current", drive.talonBR.getOutputCurrent());
     SmartDashboard.putNumber("BL talon current", drive.talonBL.getOutputCurrent());
     
+    SmartDashboard.putBoolean("calibration finished: ", imu.calFinished());
   }
 
   /**
