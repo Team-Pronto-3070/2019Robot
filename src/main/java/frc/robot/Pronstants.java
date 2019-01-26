@@ -11,7 +11,7 @@ public interface Pronstants {
 
     public static final int JOYL_PORT = 0; //Joystick ports
     public static final int JOYR_PORT = 1;
-    public static final int JOYARM_PORT = 2;
+    public static final int ARMCONT_PORT = 2;
 
     public static final double DEADZONE = .1; //Drive joystick deadzone
     public static final double GYRO_DEADZONE = 4.6; //Gyro deadzone

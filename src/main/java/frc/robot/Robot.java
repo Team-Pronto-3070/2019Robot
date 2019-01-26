@@ -38,6 +38,7 @@ public class Robot extends IterativeRobot implements Pronstants {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   Drive drive;
+  ArmControl arm;
   Joystick joyL, joyR, joyArm;
   AnalogInput pressure;
   // ShuffleboardTab shuffleboardtab;
@@ -52,6 +53,7 @@ public class Robot extends IterativeRobot implements Pronstants {
     SmartDashboard.putNumber("Angle", 0);
 
     drive = new Drive(imu);
+    arm = new ArmControl();
     pressure = new AnalogInput(0);
 
     gyroYawEntry = Shuffleboard.getTab("Gyro").add("Gyro Yaw", new Double(1)).withWidget(BuiltInWidgets.kDial)
@@ -156,6 +158,7 @@ public class Robot extends IterativeRobot implements Pronstants {
     // }else{
     drive.driveRamp();  //Takes joystick inputs, curves inputs
                         // and sets motors to curved amount
+    arm.radialNerve(); //Arm control method
 
     // }
   }
