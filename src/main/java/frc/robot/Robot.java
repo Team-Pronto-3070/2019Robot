@@ -52,8 +52,6 @@ public class Robot extends IterativeRobot implements Pronstants {
     SmartDashboard.putNumber("Angle", 0);
 
     drive = new Drive(imu);
-    joyL = new Joystick(JOYL_PORT);
-    joyR = new Joystick(JOYR_PORT);
     pressure = new AnalogInput(0);
 
     gyroYawEntry = Shuffleboard.getTab("Gyro").add("Gyro Yaw", new Double(1)).withWidget(BuiltInWidgets.kDial)
