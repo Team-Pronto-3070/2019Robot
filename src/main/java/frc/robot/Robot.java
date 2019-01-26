@@ -38,7 +38,7 @@ public class Robot extends IterativeRobot implements Pronstants {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   Drive drive;
-  Joystick joyL, joyR;
+  Joystick joyL, joyR, joyArm;
   AnalogInput pressure;
   // ShuffleboardTab shuffleboardtab;
   private NetworkTableEntry gyroYawEntry;
@@ -157,7 +157,7 @@ public class Robot extends IterativeRobot implements Pronstants {
 
     // }else{
     drive.driveRamp();  //Takes joystick inputs, curves inputs
-                        // and sets motors to curved level
+                        // and sets motors to curved amount
 
     // }
   }

@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.Encoder;
 public class Drive implements Pronstants {
 
     //Imported objects
-    TalonSRX talonFL, talonBL, talonFR, talonBR, talon1, talon2; //Talon MC objects
+    TalonSRX talonFL, talonBL, talonFR, talonBR; //Talon MC objects
     Joystick joyL, joyR; //Joystick objects
     ADIS16448_IMU imu; //Gyro object
     Encoder encL, encR; //Encoder objects
@@ -95,8 +95,8 @@ public class Drive implements Pronstants {
     }
 
     public void driveRamp() { //Non-linear ramping throttle code. 
-        double left = joyL.getRawAxis(1) * TAL_MAX_VALUE / 2;
-        double right = joyR.getRawAxis(1) * TAL_MAX_VALUE / 2;
+        double left = (joyL.getRawAxis(1) + TAL_MAX_VALUE) / 2;
+        double right = (joyR.getRawAxis(1) + TAL_MAX_VALUE) / 2;
         talonBR.set(ControlMode.Velocity, right * 4096 / 600);
         talonBL.set(ControlMode.Velocity, -left * 4096 / 600);
         talonFR.set(ControlMode.Follower, TALONBR_PORT);
