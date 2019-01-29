@@ -13,12 +13,13 @@ public interface Pronstants {
     public static final int JOYR_PORT = 1;
     public static final int ARMCONT_PORT = 2;
 
-    public static final double DEADZONE = .1; //Drive joystick deadzone
-    public static final double GYRO_DEADZONE = 4.6; //Gyro deadzone
+   
+
+
+    public static final double DEADZONE = .2; //Drive joystick deadzone
+    public static final double GYRO_DEADZONE = 1.0;//Gyro deadzone
 
     public static final double TURN_SPEED = .5; //Bot turning speed
 
     public static final double TAL_MAX_VALUE = 400; //Talon maximum speed in RPM
-
-    public static final int JOINT_SELECT_BUTTON = 0;
 }

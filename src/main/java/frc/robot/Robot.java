@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.*;
 import java.util.Map;
 import java.lang.Double;
 
+
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
@@ -56,10 +57,16 @@ public class Robot extends IterativeRobot implements Pronstants {
     arm = new ArmControl();
     pressure = new AnalogInput(0);
 
-    gyroYawEntry = Shuffleboard.getTab("Gyro").add("Gyro Yaw", new Double(1)).withWidget(BuiltInWidgets.kDial)
-        .withProperties(Map.of("min", -180, "max", 180)).getEntry();
 
-    // Get the UsbCamera from CameraServer
+
+    gyroYawEntry = Shuffleboard.getTab("Gyro")
+      .add("Gyro Yaw", new Double(1))
+      .withWidget(BuiltInWidgets.kDial)
+      .withProperties(Map.of("min", -180, "max", 180))
+      .getEntry();
+      
+		// Get the UsbCamera from CameraServer
+
     UsbCamera camera = CameraServer.getInstance().startAutomaticCapture("Front Camera", 0);
     UsbCamera line = CameraServer.getInstance().startAutomaticCapture("Line Camera", 1);
     // Set the resolution
@@ -84,22 +91,9 @@ public class Robot extends IterativeRobot implements Pronstants {
    */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("Gyro-X", imu.getAngleX());
-    SmartDashboard.putNumber("Gyro-Y", imu.getAngleY());
     SmartDashboard.putNumber("Gyro-Z", imu.getAngleZ());
 
-    SmartDashboard.putNumber("Accel-X", imu.getAccelX());
-    SmartDashboard.putNumber("Accel-Y", imu.getAccelY());
     SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());
-
-    SmartDashboard.putNumber("Pitch", imu.getPitch());
-    SmartDashboard.putNumber("Roll", imu.getRoll());
-    SmartDashboard.putNumber("Yaw", imu.getYaw());
-
-    SmartDashboard.putNumber("Pressure: ", imu.getBarometricPressure());
-    SmartDashboard.putNumber("Temperature: ", imu.getTemperature());
-    SmartDashboard.putNumber("pressure: ", pressure.getValue());
-
     gyroYawEntry.setDouble(imu.getYaw());
 
     SmartDashboard.putNumber("FR talon current", drive.talonFR.getOutputCurrent());
@@ -107,6 +101,15 @@ public class Robot extends IterativeRobot implements Pronstants {
     SmartDashboard.putNumber("BR talon current", drive.talonBR.getOutputCurrent());
     SmartDashboard.putNumber("BL talon current", drive.talonBL.getOutputCurrent());
 
+
+    
+    SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());
+    SmartDashboard.putNumber("right encoder", drive.talonFR.getSelectedSensorPosition());
+    
+    SmartDashboard.putBoolean("calibration finished: ", imu.calFinished());
+
+    SmartDashboard.putBoolean("Talons:", drive.turned);
+    SmartDashboard.putNumber("Angle of the zedd axis", drive.getAngle());
   }
 
   /**
@@ -151,17 +154,15 @@ public class Robot extends IterativeRobot implements Pronstants {
   @Override
   public void teleopPeriodic() {
 
-    // System.out.println("the angle is " + imu.getAngleX()) ;
+   
 
-    // if(joyL.getRawButton(3)) {
-    // drive.driveToAngle(90);
-
-    // }else{
-    drive.driveRamp();  //Takes joystick inputs, curves inputs
+    if(joyL.getRawButton(3)) {
+      arm.radialNerve(); //Arm control method
+    }else{
+      drive.driveRamp();  //Takes joystick inputs, curves inputs
                         // and sets motors to curved amount
-    arm.radialNerve(); //Arm control method
 
-    // }
+    }
   }
 
   /**

@@ -1,6 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.*;
@@ -8,12 +10,14 @@ import edu.wpi.first.wpilibj.Encoder;
 
 
 public class Drive implements Pronstants {
-
     //Imported objects
-    TalonSRX talonFL, talonBL, talonFR, talonBR; //Talon MC objects
+    TalonSRX talonFL, talonBL, talonFR, talonBR, talon1, talon2; //Talon MC objects
     Joystick joyL, joyR; //Joystick objects
     ADIS16448_IMU imu; //Gyro object
-    Encoder encL, encR; //Encoder objects
+    double left = 0.0; //Left side ramp
+    double right = 0.0; //Right side ramp
+    boolean turned = false; //For the driveTo angle command
+    double angleOriginal; //initilializes the angle offset
         
 
     public Drive(ADIS16448_IMU imu)  {
@@ -31,18 +35,20 @@ public class Drive implements Pronstants {
         talonFR.setInverted(false);
         talonBR.setInverted(false);
 
-        talonFL.configFactoryDefault();
+        talonFL.configFactoryDefault(); // Sets talons to factory defailts 
         talonBL.configFactoryDefault();
         talonFR.configFactoryDefault();
         talonBR.configFactoryDefault();
 
         talonFL.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
         talonFR.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
-
-
+      
         joyL = new Joystick(JOYL_PORT); //Defines joysticks
         joyR = new Joystick(JOYR_PORT);
+      
         this.imu = imu; //Sets gyro obj from arg obj
+
+        angleOriginal = imu.getAngleZ();// sets up 
 
     }
 
@@ -63,32 +69,49 @@ public class Drive implements Pronstants {
         leftDrive(0);
     }
 
-    public void tankDrive(double joyL, double joyR) { //Takes joystick outputs, 
 
-        if(Math.abs(joyL) > DEADZONE){ //If the joystick input is greater than deadzone 
-            leftDrive(joyL/3.0); //Set motors to dampened joystick input 
+    public void tankDrive(double joyL, double joyR) {
+        left = (left+joyL)/2;//averages the previous value and the current joystick value
+        right = (right+joyR)/2;
+      
+        if(Math.abs(joyL) > DEADZONE){//doesn't drive if the joystick is close to zero but not zero
+            leftDrive(left/3.0);//sets the motor to a value 3 times lower than it should be to be calmer
         }else{
             leftDrive(0); //If no input, stop left side
         }
+
+     
         if(Math.abs(joyR) > DEADZONE){//Same as left, but right
-            rightDrive(joyR/3.0);
+            rightDrive(right/3.0);
+
         }else{
             rightDrive(0);
         }
     }
+    
+    public double getAngle() {
+     return (angleOriginal - imu.getAngleZ()) % 360;//gets an angle relative to the robots starting position from 0-360
+        
+    }
 
-    public void driveToAngle(double angle) { //Rotates bot to given angle
-        if((imu.getYaw() - angle) >= GYRO_DEADZONE){ //If wanted angle is to right of bot
-                rightDrive(-TURN_SPEED); //Turn right
+    /**
+     *  This code makes the robot turn to a given angle, angle.
+     *  It turns until the angle is achieved, and then stops
+     * @param angle
+     */
+    public void driveToAngle(double angle) {
+        if((getAngle()- angle) >= GYRO_DEADZONE){
+                rightDrive(-TURN_SPEED);
                 leftDrive(TURN_SPEED);
             }          
         
-        else if((imu.getYaw() - angle) < GYRO_DEADZONE){ //If wanted angle is to left of bot
-            rightDrive(TURN_SPEED); //Turn left
+        else if((getAngle() - angle) < GYRO_DEADZONE){
+            rightDrive(TURN_SPEED);
             leftDrive(-TURN_SPEED);
         }
         else{
-            stop(); //When completed, stop
+            stop();
+            turned = true;
         }
     }
 
