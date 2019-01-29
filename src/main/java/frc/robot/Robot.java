@@ -23,6 +23,7 @@ import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -30,34 +31,32 @@ import edu.wpi.first.cameraserver.CameraServer;
  * creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends IterativeRobot implements Pronstants{
+public class Robot extends IterativeRobot implements Pronstants {
   public static final ADIS16448_IMU imu = new ADIS16448_IMU();
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  
 
   Drive drive;
-  Joystick joyL, joyR;
+  ArmControl arm;
+  Joystick joyL, joyR, joyArm;
   AnalogInput pressure;
   // ShuffleboardTab shuffleboardtab;
   private NetworkTableEntry gyroYawEntry;
-  
 
-  
   /**
-   * This function is run when the robot is first started up and should be
-   * used for any initialization code.
+   * This function is run when the robot is first started up and should be used
+   * for any initialization code.
    */
   @Override
   public void robotInit() {
     SmartDashboard.putNumber("Angle", 0);
 
     drive = new Drive(imu);
-    joyL = new Joystick(JOYL_PORT);
-    joyR = new Joystick(JOYR_PORT);
+    arm = new ArmControl();
     pressure = new AnalogInput(0);
+
 
 
     gyroYawEntry = Shuffleboard.getTab("Gyro")
@@ -67,38 +66,41 @@ public class Robot extends IterativeRobot implements Pronstants{
       .getEntry();
       
 		// Get the UsbCamera from CameraServer
+
     UsbCamera camera = CameraServer.getInstance().startAutomaticCapture("Front Camera", 0);
     UsbCamera line = CameraServer.getInstance().startAutomaticCapture("Line Camera", 1);
-		// Set the resolution
-		 camera.setResolution(320, 240);
-		 camera.setExposureAuto();
-		// Get a CvSink. This will capture Mats from the camera
-		CvSink cvSink = CameraServer.getInstance().getVideo();
-		// Setup a CvSource. This will send images back to the Dashboard
+    // Set the resolution
+    camera.setResolution(320, 240);
+    camera.setExposureAuto();
+    // Get a CvSink. This will capture Mats from the camera
+    CvSink cvSink = CameraServer.getInstance().getVideo();
+    // Setup a CvSource. This will send images back to the Dashboard
     CvSource outputStream = CameraServer.getInstance().putVideo("Rectangle", 320, 240);
     // imu.reset();
     imu.calibrate();
   }
 
   /**
-   * This function is called every robot packet, no matter the mode. Use
-   * this for items like diagnostics that you want ran during disabled,
-   * autonomous, teleoperated and test.
+   * This function is called every robot packet, no matter the mode. Use this for
+   * items like diagnostics that you want ran during disabled, autonomous,
+   * teleoperated and test.
    *
-   * <p>This runs after the mode specific periodic functions, but before
-   * LiveWindow and SmartDashboard integrated updating.
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and SmartDashboard integrated updating.
    */
   @Override
   public void robotPeriodic() {
     SmartDashboard.putNumber("Gyro-Z", imu.getAngleZ());
+
     SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());
-    
     gyroYawEntry.setDouble(imu.getYaw());
 
     SmartDashboard.putNumber("FR talon current", drive.talonFR.getOutputCurrent());
     SmartDashboard.putNumber("FL talon current", drive.talonFL.getOutputCurrent());
     SmartDashboard.putNumber("BR talon current", drive.talonBR.getOutputCurrent());
     SmartDashboard.putNumber("BL talon current", drive.talonBL.getOutputCurrent());
+
 
     
     SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());
@@ -112,14 +114,15 @@ public class Robot extends IterativeRobot implements Pronstants{
 
   /**
    * This autonomous (along with the chooser code above) shows how to select
-   * between different autonomous modes using the dashboard. The sendable
-   * chooser code works with the Java SmartDashboard. If you prefer the
-   * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-   * getString line to get the auto name from the text box below the Gyro
+   * between different autonomous modes using the dashboard. The sendable chooser
+   * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
+   * remove all of the chooser code and uncomment the getString line to get the
+   * auto name from the text box below the Gyro
    *
-   * <p>You can add additional auto modes by adding additional comparisons to
-   * the switch structure below with additional strings. If using the
-   * SendableChooser make sure to add them to the chooser code above as well.
+   * <p>
+   * You can add additional auto modes by adding additional comparisons to the
+   * switch structure below with additional strings. If using the SendableChooser
+   * make sure to add them to the chooser code above as well.
    */
   @Override
   public void autonomousInit() {
@@ -135,13 +138,13 @@ public class Robot extends IterativeRobot implements Pronstants{
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
+    case kCustomAuto:
+      // Put custom auto code here
+      break;
+    case kDefaultAuto:
+    default:
+      // Put default auto code here
+      break;
     }
   }
 
@@ -153,14 +156,13 @@ public class Robot extends IterativeRobot implements Pronstants{
 
    
 
-    // if(joyL.getRawButton(3)) {
-      drive.driveToAngle(90);
+    if(joyL.getRawButton(3)) {
+      arm.radialNerve(); //Arm control method
+    }else{
+      drive.driveRamp();  //Takes joystick inputs, curves inputs
+                        // and sets motors to curved amount
 
-    // }else{
-    //   drive.tankDrive(joyL.getRawAxis(1),joyR.getRawAxis(1));
-    
-      
-    // }
+    }
   }
 
   /**

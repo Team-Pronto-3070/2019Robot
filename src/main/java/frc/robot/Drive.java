@@ -6,21 +6,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.*;
-
-import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Encoder;
 
 
 public class Drive implements Pronstants {
-
-    TalonSRX talonFL, talonBL, talonFR, talonBR, talon1, talon2;
-    Joystick joyL, joyR;
-    ADIS16448_IMU imu;
-    double left = 0.0;
-    double right = 0.0;
-    boolean turned = false;
-    double angleOriginal = 0.0;
-    
+    //Imported objects
+    TalonSRX talonFL, talonBL, talonFR, talonBR, talon1, talon2; //Talon MC objects
+    Joystick joyL, joyR; //Joystick objects
+    ADIS16448_IMU imu; //Gyro object
+    double left = 0.0; //Left side ramp
+    double right = 0.0; //Right side ramp
+    boolean turned = false; //For the driveTo angle command
+    double angleOriginal; //initilializes the angle offset
         
 
     public Drive(ADIS16448_IMU imu)  {
@@ -28,66 +25,72 @@ public class Drive implements Pronstants {
         // talon1 = new TalonSRX(TALON1_PORT);
         // talon2 = new TalonSRX(TALON2_PORT); 
 
-        talonFL = new TalonSRX(TALONFL_PORT);
+        talonFL = new TalonSRX(TALONFL_PORT); //Defines Talon objects
         talonBL = new TalonSRX(TALONBL_PORT);
         talonFR = new TalonSRX(TALONFR_PORT);
         talonBR = new TalonSRX(TALONBR_PORT);
 
-        talonFL.setInverted(true);
+        talonFL.setInverted(true); //Inverts Talon outputs to correctly orient joystick values
         talonBL.setInverted(true);
         talonFR.setInverted(false);
         talonBR.setInverted(false);
 
-        talonFL.configFactoryDefault();
+        talonFL.configFactoryDefault(); // Sets talons to factory defailts 
         talonBL.configFactoryDefault();
         talonFR.configFactoryDefault();
         talonBR.configFactoryDefault();
 
         talonFL.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
         talonFR.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
-
-        joyL = new Joystick(JOYL_PORT);
+      
+        joyL = new Joystick(JOYL_PORT); //Defines joysticks
         joyR = new Joystick(JOYR_PORT);
-        this.imu = imu;
+      
+        this.imu = imu; //Sets gyro obj from arg obj
 
-        angleOriginal = imu.getAngleZ();
+        angleOriginal = imu.getAngleZ();// sets up 
 
     }
 
 
-    public void leftDrive(double power) {
+    public void leftDrive(double power) { //Left side drive. Used in other methods 
 
     talonFL.set(ControlMode.PercentOutput, power);
     talonBL.set(ControlMode.Follower, TALONFL_PORT);
     }
 
-    public void rightDrive(double power){
+    public void rightDrive(double power){ //Right side drive. Used in other methods
     talonFR.set(ControlMode.PercentOutput, power);
     talonBR.set(ControlMode.Follower, TALONFR_PORT);
     }
     
-    public void stop() {
+    public void stop() { //Kill motors
         rightDrive(0);
         leftDrive(0);
     }
 
+
     public void tankDrive(double joyL, double joyR) {
-        left = (left+joyL)/2;
+        left = (left+joyL)/2;//averages the previous value and the current joystick value
         right = (right+joyR)/2;
-        if(Math.abs(joyL) > DEADZONE){
-            leftDrive(left/3.0);
+      
+        if(Math.abs(joyL) > DEADZONE){//doesn't drive if the joystick is close to zero but not zero
+            leftDrive(left/3.0);//sets the motor to a value 3 times lower than it should be to be calmer
         }else{
-            leftDrive(0);
+            leftDrive(0); //If no input, stop left side
         }
-        if(Math.abs(joyR) > DEADZONE){
+
+     
+        if(Math.abs(joyR) > DEADZONE){//Same as left, but right
             rightDrive(right/3.0);
+
         }else{
             rightDrive(0);
         }
     }
     
     public double getAngle() {
-     return (angleOriginal - imu.getAngleZ()) % 360;
+     return (angleOriginal - imu.getAngleZ()) % 360;//gets an angle relative to the robots starting position from 0-360
         
     }
 
@@ -112,4 +115,12 @@ public class Drive implements Pronstants {
         }
     }
 
+    public void driveRamp() { //Non-linear ramping throttle code. 
+        double left = (joyL.getRawAxis(1) + TAL_MAX_VALUE) / 2;
+        double right = (joyR.getRawAxis(1) + TAL_MAX_VALUE) / 2;
+        talonBR.set(ControlMode.Velocity, right * 4096 / 600);
+        talonBL.set(ControlMode.Velocity, -left * 4096 / 600);
+        talonFR.set(ControlMode.Follower, TALONBR_PORT);
+        talonFL.set(ControlMode.Follower, TALONBL_PORT);
+    }
 }
