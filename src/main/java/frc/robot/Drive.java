@@ -16,7 +16,10 @@ public class Drive implements Pronstants {
     TalonSRX talonFL, talonBL, talonFR, talonBR, talon1, talon2;
     Joystick joyL, joyR;
     ADIS16448_IMU imu;
-    Encoder encL, encR;
+    double left = 0.0;
+    double right = 0.0;
+    boolean turned = false;
+    double angleOriginal = 0.0;
     
         
 
@@ -43,12 +46,11 @@ public class Drive implements Pronstants {
         talonFL.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
         talonFR.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
-        SmartDashboard.putNumber("left encoder", talonFL.getSelectedSensorPosition());
-        SmartDashboard.putNumber("right encoder", talonFR.getSelectedSensorPosition());
-
         joyL = new Joystick(JOYL_PORT);
         joyR = new Joystick(JOYR_PORT);
         this.imu = imu;
+
+        angleOriginal = imu.getAngleZ();
 
     }
 
@@ -70,31 +72,43 @@ public class Drive implements Pronstants {
     }
 
     public void tankDrive(double joyL, double joyR) {
-
+        left = (left+joyL)/2;
+        right = (right+joyR)/2;
         if(Math.abs(joyL) > DEADZONE){
-            leftDrive(joyL/3.0);
+            leftDrive(left/3.0);
         }else{
             leftDrive(0);
         }
         if(Math.abs(joyR) > DEADZONE){
-            rightDrive(joyR/3.0);
+            rightDrive(right/3.0);
         }else{
             rightDrive(0);
         }
     }
+    
+    public double getAngle() {
+     return (angleOriginal - imu.getAngleZ()) % 360;
+        
+    }
 
+    /**
+     *  This code makes the robot turn to a given angle, angle.
+     *  It turns until the angle is achieved, and then stops
+     * @param angle
+     */
     public void driveToAngle(double angle) {
-        if((imu.getYaw() - angle) >= GYRO_DEADZONE){
+        if((getAngle()- angle) >= GYRO_DEADZONE){
                 rightDrive(-TURN_SPEED);
                 leftDrive(TURN_SPEED);
             }          
         
-        else if((imu.getYaw() - angle) < GYRO_DEADZONE){
+        else if((getAngle() - angle) < GYRO_DEADZONE){
             rightDrive(TURN_SPEED);
             leftDrive(-TURN_SPEED);
         }
         else{
             stop();
+            turned = true;
         }
     }
 

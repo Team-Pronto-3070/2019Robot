@@ -13,7 +13,7 @@ public interface Pronstants {
     public static final int JOYR_PORT = 1;
 
     public static final double DEADZONE = .2;
-    public static final double GYRO_DEADZONE = 4.6;
+    public static final double GYRO_DEADZONE = 1.0;
 
     public static final double TURN_SPEED = .5;
 

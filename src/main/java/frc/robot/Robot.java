@@ -90,22 +90,8 @@ public class Robot extends IterativeRobot implements Pronstants{
    */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("Gyro-X", imu.getAngleX());
-    SmartDashboard.putNumber("Gyro-Y", imu.getAngleY());
     SmartDashboard.putNumber("Gyro-Z", imu.getAngleZ());
-    
-    SmartDashboard.putNumber("Accel-X", imu.getAccelX());
-    SmartDashboard.putNumber("Accel-Y", imu.getAccelY());
     SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());
-    
-    SmartDashboard.putNumber("Pitch", imu.getPitch());
-    SmartDashboard.putNumber("Roll", imu.getRoll());
-    SmartDashboard.putNumber("Yaw", imu.getYaw());
-    
-    SmartDashboard.putNumber("Pressure: ", imu.getBarometricPressure());
-    SmartDashboard.putNumber("Temperature: ", imu.getTemperature()); 
-    SmartDashboard.putNumber("pressure: ", pressure.getValue());
-   
     
     gyroYawEntry.setDouble(imu.getYaw());
 
@@ -113,10 +99,15 @@ public class Robot extends IterativeRobot implements Pronstants{
     SmartDashboard.putNumber("FL talon current", drive.talonFL.getOutputCurrent());
     SmartDashboard.putNumber("BR talon current", drive.talonBR.getOutputCurrent());
     SmartDashboard.putNumber("BL talon current", drive.talonBL.getOutputCurrent());
+
+    
+    SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());
+    SmartDashboard.putNumber("right encoder", drive.talonFR.getSelectedSensorPosition());
     
     SmartDashboard.putBoolean("calibration finished: ", imu.calFinished());
 
- 
+    SmartDashboard.putBoolean("Talons:", drive.turned);
+    SmartDashboard.putNumber("Angle of the zedd axis", drive.getAngle());
   }
 
   /**
@@ -160,16 +151,16 @@ public class Robot extends IterativeRobot implements Pronstants{
   @Override
   public void teleopPeriodic() {
 
-    // System.out.println("the angle is " + imu.getAngleX()) ;
+   
 
-    //if(joyL.getRawButton(3)) {
-    //  drive.driveToAngle(90);
+    // if(joyL.getRawButton(3)) {
+      drive.driveToAngle(90);
 
-    //}else{
-      drive.tankDrive(joyL.getRawAxis(1),joyR.getRawAxis(1));
+    // }else{
+    //   drive.tankDrive(joyL.getRawAxis(1),joyR.getRawAxis(1));
     
       
-    //}
+    // }
   }
 
   /**
