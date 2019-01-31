@@ -11,7 +11,7 @@
     DigitalInput lineSensorL, lineSensorR;
     ADIS116448 imu;
 
-    public LineSense() {
+    public LineSense(Drive drive, ADIS116448 imu) {
         
         lineSensorL = new DigitalInput(LINE_PORT_1);
         lineSensorR = new DigitalInput(LINE_PORT_2);
@@ -20,7 +20,7 @@
     }
 
 
-    public void LineSense() {    
+    public void LineSense( double angle) {    
        
 
         if(!lineSensorL){
@@ -32,11 +32,11 @@
             drive.rightDrive(-.5);
         }
         if(lineSensorL && lineSensorR){
-            driveToAngle(insert angle);
+            driveToAngle(angle);
             linedUp = true;
         }
         if(linedUp){
-            drive.tankDrive(.6);
+
         }
 
     }

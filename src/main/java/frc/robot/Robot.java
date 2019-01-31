@@ -26,6 +26,7 @@ public class Robot implements ADIS116448 {
   
 
   Drive drive;
+  LineSense lineSense;
   Joystick joyL, joyR;
   ADIS116448 imu;
 
@@ -41,6 +42,7 @@ public class Robot implements ADIS116448 {
 
     SmartDashboard.putNumber("Angle", 0);
 
+    lineSense = new LineSense(ADIS116448, drive);
     drive = new Drive(ADIS116448);
     joyL = new Joystick();
     joyR = new Joystick();

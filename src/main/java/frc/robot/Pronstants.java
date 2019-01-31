@@ -17,4 +17,8 @@ public interface Pronstants {
 
     public static final double TURN_SPEED = .5;
 
+    public static final int LINE_PORT_1 = 0;
+    public static final int LINE_PORT_2 = 1;
+    
+
 }
