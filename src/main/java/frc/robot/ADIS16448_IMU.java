@@ -222,6 +222,7 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
   private int m_samples_take_index = 0;
   private int m_samples_put_index = 0;
   private boolean m_calculate_started = false;
+  private boolean calFinished = false;
 
   // Previous timestamp
   long timestamp_old = 0;
@@ -263,13 +264,13 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
     DigitalOutput m_reset_out = new DigitalOutput(18);  // Drive MXP DIO8 low
     Timer.delay(0.01);  // Wait 10ms
     m_reset_out.close();
-    //DigitalInput m_reset_in = new DigitalInput(18);  // Set MXP DIO8 high
+    DigitalInput m_reset_in = new DigitalInput(18);  // Set MXP DIO8 high
     Timer.delay(0.5);  // Wait 500ms
 
     m_spi = new SPI(SPI.Port.kMXP);
     m_spi.setClockRate(1000000);
     m_spi.setMSBFirst();
-    //m_spi.setSampleDataOnFalling();
+    m_spi.setSampleDataOnFalling();
     m_spi.setClockActiveLow();
     m_spi.setChipSelectActiveLow();
     
@@ -277,7 +278,7 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
     
     // Validate the product ID
     if (readRegister(kRegPROD_ID) != 16448) {
-      //m_spi.free();
+      m_spi.free();
       m_spi = null;
       m_samples = null;
       m_samples_mutex = null;
@@ -373,7 +374,12 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
       m_gyro_offset_y = m_accum_gyro_y / m_accum_count;
       m_gyro_offset_z = m_accum_gyro_z / m_accum_count;
     }
+    calFinished = true;
   }
+  public boolean calFinished(){
+      return calFinished;
+  }
+
 
   static int ToUShort(ByteBuffer buf) {
 	  return (buf.getShort(0)) & 0xFFFF;
@@ -469,11 +475,11 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
     } catch (InterruptedException e) {
     }
     if (m_interrupt != null) {
-      //m_interrupt.free();
+      m_interrupt.free();
       m_interrupt = null;
     }
     if (m_spi != null) {
-      //m_spi.free();
+      m_spi.free();
       m_spi = null;
     }
   }
@@ -488,7 +494,7 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
     double dt = 0; // This number must be adjusted if decimation setting is changed. Default is 1/102.4 SPS
     int data_subset[] = new int[28];
     long timestamp_new = 0;
-    double data_to_read = 0;
+    int data_to_read = 0;
 
     while (!m_freed.get()) {
       // Waiting for the buffer to fill...
@@ -497,7 +503,7 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
   	  data_count = m_spi.readAutoReceivedData(readBuf,0,0); // Read number of bytes currently stored in the buffer
   	  array_offset = data_count % 116; // Look for "extra" data This is 116 not 29 like in C++ b/c everything is 32-bits and takes up 4 bytes in the buffer
       data_to_read = data_count - array_offset; // Discard "extra" data
-  	  m_spi.readAutoReceivedData(readBuf,data_count,0); // Read data from DMA buffer
+  	  m_spi.readAutoReceivedData(readBuf,data_to_read,0); // Read data from DMA buffer
   	  for(int i = 0; i < data_to_read; i += 116) { // Process each set of 28 bytes (timestamp + 28 data) * 4 (32-bit ints)
 		    for(int j = 0; j < 28; j++) { // Split each set of 28 bytes into a sub-array for processing
 			    data_subset[j] = readBuf.getInt(4 + (i + j) * 4); // (i + j) * 4 = position in  buffer + 4 to skip timestamp
@@ -620,7 +626,7 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
             
           }
         }else{
-          System.out.println("Invalid CRC");
+          // System.out.println("Invalid CRC");
         }
 	    }
     }
