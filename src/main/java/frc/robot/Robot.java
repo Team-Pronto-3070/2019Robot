@@ -41,7 +41,7 @@ public class Robot extends IterativeRobot implements Pronstants {
 
   Drive drive;
   LineSense lineSense;
-  ADIS116448 imu;
+
   ArmControl arm;
   Joystick joyL, joyR, joyArm;
   AnalogInput pressure;
@@ -58,9 +58,9 @@ public class Robot extends IterativeRobot implements Pronstants {
     SmartDashboard.putNumber("Angle", 0);
 
     
-    lineSense = new LineSense(ADIS116448, drive);
-    joyL = new Joystick();
-    joyR = new Joystick();
+    lineSense = new LineSense(drive, imu);
+    joyL = new Joystick(0);
+    joyR = new Joystick(1);
     drive = new Drive(imu);
     arm = new ArmControl();
     pressure = new AnalogInput(0);
@@ -115,8 +115,8 @@ public class Robot extends IterativeRobot implements Pronstants {
     SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());//puts the encoder values on the drive 
     SmartDashboard.putNumber("right encoder", drive.talonFR.getSelectedSensorPosition());
 
-    SmartDashboard.putNumber("lower joint encoder",  arm.ArmTal1.getSelectedSensorPosition());
-    SmartDashboard.putNumber("lower joint encoder",  arm.ArmTal2.getSelectedSensorPosition());
+    SmartDashboard.putNumber("lower joint encoder",  arm.armTal1.getSelectedSensorPosition());
+    SmartDashboard.putNumber("lower joint encoder",  arm.armTal2.getSelectedSensorPosition());
     
     SmartDashboard.putBoolean("calibration finished: ", imu.calFinished());//used to tell driver if the gyro is done calibrating
 
@@ -136,29 +136,14 @@ public class Robot extends IterativeRobot implements Pronstants {
    * switch structure below with additional strings. If using the SendableChooser
    * make sure to add them to the chooser code above as well.
    */
-  @Override
-  public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // autoSelected = SmartDashboard.getString("Auto Selector",
-    // defaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
-  }
+ 
+  
 
   /**
    * This function is called periodically during autonomous.
    */
-  @Override
-  public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-    case kCustomAuto:
-      // Put custom auto code here
-      break;
-    case kDefaultAuto:
-    default:
-      // Put default auto code here
-      break;
-    }
-  }
+  
+ 
 
   /**
    * This function is called periodically during operator control.

@@ -19,12 +19,7 @@ public interface Pronstants {
     public static final int TILTSOL_PORT = 4; //Tilt piston solenoid
 
     public static final double DEADZONE = .1; //Drive joystick deadzone
-    public static final double GYRO_DEADZONE = 4.6; //Gyro deadzone
 
-
-
-
-    public static final double DEADZONE = .2; //Drive joystick deadzone
     public static final double GYRO_DEADZONE = 1.0;//Gyro deadzone
 
 
