@@ -43,15 +43,15 @@ public class ArmControl implements Pronstants{
         giveEmTheSucc();
     }
 
-    public void giveEmTheSucc(){
-        if(toggle){
-            handSol.set(armController.getBButton());
-        } else {
-            if(armController.getBButtonPressed()){
+    public void giveEmTheSucc(){ //Suction cup method
+        if(toggle){ //If boolean is true
+            handSol.set(armController.getBButton()); //When B button is pressed, suction is on. When it isn't pressed it turns off
+        } else { //If boolean is false
+            if(armController.getBButtonPressed()){ //Press B button once, suction turns on. Press it again, it turns off
                 handSol.set(handSol.get());
             }
         }
-        if(armController.getStartButton()){
+        if(armController.getStartButton()){ //Boolean toggle is toggled with Start button on xbox controller
             toggle = !toggle;
         }
     }
