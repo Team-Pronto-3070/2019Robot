@@ -222,6 +222,7 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
   private int m_samples_take_index = 0;
   private int m_samples_put_index = 0;
   private boolean m_calculate_started = false;
+  private boolean calFinished = false;
 
   // Previous timestamp
   long timestamp_old = 0;
@@ -373,7 +374,12 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, Sendable
       m_gyro_offset_y = m_accum_gyro_y / m_accum_count;
       m_gyro_offset_z = m_accum_gyro_z / m_accum_count;
     }
+    calFinished = true;
   }
+  public boolean calFinished(){
+      return calFinished;
+  }
+
 
   static int ToUShort(ByteBuffer buf) {
 	  return (buf.getShort(0)) & 0xFFFF;

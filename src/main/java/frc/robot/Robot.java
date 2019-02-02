@@ -13,10 +13,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.*;
 import java.util.Map;
 import java.lang.Double;
+
 
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
@@ -38,9 +40,12 @@ public class Robot extends IterativeRobot implements Pronstants {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   Drive drive;
+  LineSense lineSense;
+  ADIS116448 imu;
   ArmControl arm;
   Joystick joyL, joyR, joyArm;
   AnalogInput pressure;
+  DigitalInput lightSensor;
   // ShuffleboardTab shuffleboardtab;
   private NetworkTableEntry gyroYawEntry;
 
@@ -52,14 +57,25 @@ public class Robot extends IterativeRobot implements Pronstants {
   public void robotInit() {
     SmartDashboard.putNumber("Angle", 0);
 
+    
+    lineSense = new LineSense(ADIS116448, drive);
+    joyL = new Joystick();
+    joyR = new Joystick();
     drive = new Drive(imu);
     arm = new ArmControl();
     pressure = new AnalogInput(0);
+    lightSensor = new DigitalInput(0);
 
-    gyroYawEntry = Shuffleboard.getTab("Gyro").add("Gyro Yaw", new Double(1)).withWidget(BuiltInWidgets.kDial)
-        .withProperties(Map.of("min", -180, "max", 180)).getEntry();
 
-    // Get the UsbCamera from CameraServer
+
+    gyroYawEntry = Shuffleboard.getTab("Gyro")
+      .add("Gyro Yaw", new Double(1))
+      .withWidget(BuiltInWidgets.kDial)
+      .withProperties(Map.of("min", -180, "max", 180))
+      .getEntry();
+      
+		// Get the UsbCamera from CameraServer
+
     UsbCamera camera = CameraServer.getInstance().startAutomaticCapture("Front Camera", 0);
     UsbCamera line = CameraServer.getInstance().startAutomaticCapture("Line Camera", 1);
     // Set the resolution
@@ -70,6 +86,7 @@ public class Robot extends IterativeRobot implements Pronstants {
     // Setup a CvSource. This will send images back to the Dashboard
     CvSource outputStream = CameraServer.getInstance().putVideo("Rectangle", 320, 240);
     // imu.reset();
+    imu.calibrate();
   }
 
   /**
@@ -83,29 +100,28 @@ public class Robot extends IterativeRobot implements Pronstants {
    */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("Gyro-X", imu.getAngleX());
-    SmartDashboard.putNumber("Gyro-Y", imu.getAngleY());
-    SmartDashboard.putNumber("Gyro-Z", imu.getAngleZ());
+    SmartDashboard.putNumber("Gyro-Z", imu.getAngleZ());// outputs the gyro value to smartDashboard
 
-    SmartDashboard.putNumber("Accel-X", imu.getAccelX());
-    SmartDashboard.putNumber("Accel-Y", imu.getAccelY());
-    SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());
-
-    SmartDashboard.putNumber("Pitch", imu.getPitch());
-    SmartDashboard.putNumber("Roll", imu.getRoll());
-    SmartDashboard.putNumber("Yaw", imu.getYaw());
-
-    SmartDashboard.putNumber("Pressure: ", imu.getBarometricPressure());
-    SmartDashboard.putNumber("Temperature: ", imu.getTemperature());
-    SmartDashboard.putNumber("pressure: ", pressure.getValue());
-
+    SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());//not used currently, might be used later
     gyroYawEntry.setDouble(imu.getYaw());
 
-    SmartDashboard.putNumber("FR talon current", drive.talonFR.getOutputCurrent());
+    SmartDashboard.putNumber("FR talon current", drive.talonFR.getOutputCurrent());//outputs the current of the talons to the dashboard
     SmartDashboard.putNumber("FL talon current", drive.talonFL.getOutputCurrent());
     SmartDashboard.putNumber("BR talon current", drive.talonBR.getOutputCurrent());
     SmartDashboard.putNumber("BL talon current", drive.talonBL.getOutputCurrent());
 
+    SmartDashboard.putBoolean("light", lightSensor.get());//used for testing if the light sensor is detecting light or not
+    
+    SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());//puts the encoder values on the drive 
+    SmartDashboard.putNumber("right encoder", drive.talonFR.getSelectedSensorPosition());
+
+    SmartDashboard.putNumber("lower joint encoder",  arm.ArmTal1.getSelectedSensorPosition());
+    SmartDashboard.putNumber("lower joint encoder",  arm.ArmTal2.getSelectedSensorPosition());
+    
+    SmartDashboard.putBoolean("calibration finished: ", imu.calFinished());//used to tell driver if the gyro is done calibrating
+
+    SmartDashboard.putBoolean("Talons:", drive.turned);//tells the driver if the robot has turned
+    SmartDashboard.putNumber("Angle of the zedd axis", drive.getAngle());//this gives the angle of the robot relative to how it started
   }
 
   /**
@@ -150,17 +166,15 @@ public class Robot extends IterativeRobot implements Pronstants {
   @Override
   public void teleopPeriodic() {
 
-    // System.out.println("the angle is " + imu.getAngleX()) ;
-
-    // if(joyL.getRawButton(3)) {
-    // drive.driveToAngle(90);
-
-    // }else{
-    drive.driveRamp();  //Takes joystick inputs, curves inputs
+    if(joyL.getRawButton(3)) {
+      arm.radialNerve(); //Arm control method
+    }else if(joyL.getRawButton(2)){
+      drive.driveToAngle(90);
+    }else{ 
+      drive.driveRamp();  //Takes joystick inputs, curves inputs
                         // and sets motors to curved amount
-    arm.radialNerve(); //Arm control method
 
-    // }
+    }
   }
 
   /**
