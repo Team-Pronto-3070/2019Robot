@@ -39,6 +39,8 @@ public class Robot extends IterativeRobot implements Pronstants {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   Drive drive;
+  LineSense lineSense;
+  ADIS116448 imu;
   ArmControl arm;
   Joystick joyL, joyR, joyArm;
   AnalogInput pressure;
@@ -53,6 +55,10 @@ public class Robot extends IterativeRobot implements Pronstants {
   public void robotInit() {
     SmartDashboard.putNumber("Angle", 0);
 
+    
+    lineSense = new LineSense(ADIS116448, drive);
+    joyL = new Joystick();
+    joyR = new Joystick();
     drive = new Drive(imu);
     arm = new ArmControl();
     pressure = new AnalogInput(0);
