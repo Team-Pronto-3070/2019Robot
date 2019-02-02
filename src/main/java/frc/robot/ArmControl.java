@@ -2,6 +2,7 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.GenericHID;
 import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.Encoder;
@@ -12,7 +13,7 @@ public class ArmControl implements Pronstants{
 
     XboxController armController;
     TalonSRX armTal1, armTal2;
-    Solenoid handSol;
+    Solenoid handSol, tiltSol;
     boolean toggle = true;
 
     public ArmControl(){
@@ -22,6 +23,7 @@ public class ArmControl implements Pronstants{
         armTal2 = new TalonSRX(ARMTAL2_PORT); //Talon for elbow joint 
 
         handSol = new Solenoid(HANDSOL_PORT);
+        tiltSol = new Solenoid(TILTSOL_PORT);
     }
 
     public void stop(){
@@ -40,7 +42,14 @@ public class ArmControl implements Pronstants{
         } else {
             armTal1.set(ControlMode.PercentOutput, 0);
         }
+        tilt();
         giveEmTheSucc();
+    }
+
+    public void tilt(){
+        if(armController.getBumperPressed(Hand.kRight)){
+            tiltSol.set(!tiltSol.get());
+        }
     }
 
     public void giveEmTheSucc(){ //Suction cup method
@@ -48,7 +57,7 @@ public class ArmControl implements Pronstants{
             handSol.set(armController.getBButton()); //When B button is pressed, suction is on. When it isn't pressed it turns off
         } else { //If boolean is false
             if(armController.getBButtonPressed()){ //Press B button once, suction turns on. Press it again, it turns off
-                handSol.set(handSol.get());
+                handSol.set(!handSol.get());
             }
         }
         if(armController.getStartButton()){ //Boolean toggle is toggled with Start button on xbox controller

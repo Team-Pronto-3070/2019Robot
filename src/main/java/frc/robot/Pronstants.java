@@ -13,7 +13,9 @@ public interface Pronstants {
     public static final int JOYR_PORT = 1;
     public static final int ARMCONT_PORT = 2;
 
-    public static final int HANDSOL_PORT = 3; //Placeholder solenoid port
+    //Placeholder solenoid ports
+    public static final int HANDSOL_PORT = 3; //Suction cup solenoid
+    public static final int TILTSOL_PORT = 4; //Tilt piston solenoid
 
     public static final double DEADZONE = .1; //Drive joystick deadzone
     public static final double GYRO_DEADZONE = 4.6; //Gyro deadzone
