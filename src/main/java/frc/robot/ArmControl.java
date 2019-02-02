@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID;
 import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.Encoder;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 
 
 public class ArmControl implements Pronstants{
@@ -17,6 +18,12 @@ public class ArmControl implements Pronstants{
 
         ArmTal1 = new TalonSRX(ARMTAL1_PORT); //Talon for shoulder joint
         ArmTal2 = new TalonSRX(ARMTAL2_PORT); //Talon for elbow joint 
+
+        ArmTal1.configFactoryDefault();
+        ArmTal2.configFactoryDefault();
+
+        ArmTal1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+        ArmTal2.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
     }
 
     public void stop(){

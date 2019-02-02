@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.Encoder;
 
 public class Drive implements Pronstants {
     //Imported objects
-    TalonSRX talonFL, talonBL, talonFR, talonBR, talon1, talon2; //Talon MC objects
+    TalonSRX talonFL, talonBL, talonFR, talonBR; //Talon MC objects
     Joystick joyL, joyR; //Joystick objects
     ADIS16448_IMU imu; //Gyro object
     double left = 0.0; //Left side ramp
@@ -21,21 +21,20 @@ public class Drive implements Pronstants {
         
 
     public Drive(ADIS16448_IMU imu)  {
-        
-        // talon1 = new TalonSRX(TALON1_PORT);
-        // talon2 = new TalonSRX(TALON2_PORT); 
+ 
 
         talonFL = new TalonSRX(TALONFL_PORT); //Defines Talon objects
         talonBL = new TalonSRX(TALONBL_PORT);
         talonFR = new TalonSRX(TALONFR_PORT);
         talonBR = new TalonSRX(TALONBR_PORT);
 
+
         talonFL.setInverted(true); //Inverts Talon outputs to correctly orient joystick values
         talonBL.setInverted(true);
         talonFR.setInverted(false);
         talonBR.setInverted(false);
 
-        talonFL.configFactoryDefault(); // Sets talons to factory defailts 
+        talonFL.configFactoryDefault(); // Sets talons to factory defaults 
         talonBL.configFactoryDefault();
         talonFR.configFactoryDefault();
         talonBR.configFactoryDefault();
