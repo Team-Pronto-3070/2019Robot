@@ -14,6 +14,14 @@ public interface Pronstants {
     public static final int ARMCONT_PORT = 2;
 
 
+    //Placeholder solenoid ports
+    public static final int HANDSOL_PORT = 3; //Suction cup solenoid
+    public static final int TILTSOL_PORT = 4; //Tilt piston solenoid
+
+    public static final double DEADZONE = .1; //Drive joystick deadzone
+    public static final double GYRO_DEADZONE = 4.6; //Gyro deadzone
+
+
 
 
     public static final double DEADZONE = .2; //Drive joystick deadzone
@@ -27,5 +35,8 @@ public interface Pronstants {
 
     public static final double TURN_SPEED = .5; //Bot turning speed
     public static final double TAL_MAX_VALUE = 400; //Talon maximum speed in RPM
+
+    public static final int JOINT_SELECT_BUTTON = 0;
+
 
 }
