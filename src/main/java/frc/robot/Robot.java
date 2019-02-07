@@ -147,8 +147,3 @@ public class Robot extends IterativeRobot implements Pronstants {
   public void testPeriodic() {
   }
 }
-
-
-
-
-hey there -x
