@@ -133,13 +133,13 @@ public class ArmControl implements Pronstants{
 
     public boolean moveArm(double shoulderAngle, double elbowAngle, double wristState){
 
-        double shoulderRatio = shoulderAngle / armTal1.getSelectedSensorPosition();
+        double shoulderRatio = shoulderAngle - armTal1.getSelectedSensorPosition() / armTal1.getSelectedSensorPosition();
         if(shoulderRatio > 1){
             shoulderRatio = 1;
         } else if (shoulderRatio < -1){
             shoulderRatio = -1;
         }
-        double elbowRatio = elbowAngle / armTal2.getSelectedSensorPosition();
+        double elbowRatio = elbowAngle - armTal2.getSelectedSensorPosition() / armTal2.getSelectedSensorPosition();
         if(elbowRatio > 1){
             elbowRatio = 1;
         } else if (elbowRatio < -1){
