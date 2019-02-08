@@ -6,9 +6,7 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.GenericHID;
 import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.Encoder;
-
 import edu.wpi.first.wpilibj.Solenoid;
-
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 
 
@@ -18,7 +16,16 @@ public class ArmControl implements Pronstants{
     XboxController armController;
     TalonSRX armTal1, armTal2;
     Solenoid handSol, tiltSol;
-    boolean toggle = true;
+    boolean succToggle = true;
+    boolean manualToggle = false;
+
+    public enum ArmPosition{
+        prepareHatchGround, prepareHatchWall, prepareBall,
+        pickupBall, firstLevelHatch,
+        secondLevelHatch, firstLevelBall,
+        secondLevelBall, reset
+    }
+    ArmPosition state;
 
     public ArmControl(){
         armController = new XboxController(ARMCONT_PORT);
@@ -36,7 +43,6 @@ public class ArmControl implements Pronstants{
 
         armTal1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
         armTal2.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
-
     }
 
     public void stop(){
@@ -55,8 +61,15 @@ public class ArmControl implements Pronstants{
         } else {
             armTal1.set(ControlMode.PercentOutput, 0);
         }
-        tilt();
-        giveEmTheSucc();
+        if(armController.getBackButtonPressed()){
+            manualToggle = !manualToggle;
+        }
+        if(manualToggle){
+            tilt();
+            giveEmTheSucc();
+        } else {
+            autoArmControl();
+        }
     }
 
     public void tilt(){
@@ -66,7 +79,7 @@ public class ArmControl implements Pronstants{
     }
 
     public void giveEmTheSucc(){ //Suction cup method
-        if(toggle){ //If boolean is true
+        if(succToggle){ //If boolean is true
             handSol.set(armController.getBButton()); //When B button is pressed, suction is on. When it isn't pressed it turns off
         } else { //If boolean is false
             if(armController.getBButtonPressed()){ //Press B button once, suction turns on. Press it again, it turns off
@@ -74,7 +87,72 @@ public class ArmControl implements Pronstants{
             }
         }
         if(armController.getStartButton()){ //Boolean toggle is toggled with Start button on xbox controller
-            toggle = !toggle;
+            succToggle = !succToggle;
+        }
+    }
+
+    
+    public void autoArmControl(){
+        ArmPosition pos = ArmPosition.reset;
+        switch(pos){
+            case prepareHatchGround:
+                
+                break;
+            case prepareHatchWall:
+                
+                break;
+            case prepareBall:
+                
+                break;
+            case firstLevelHatch:
+                
+                break;
+            case secondLevelHatch:
+                
+                break;
+            case firstLevelBall:
+                
+                break;
+            case secondLevelBall:
+                
+                break;
+            case reset:
+            default:
+                
+                break;
+            }
+    }
+
+    public boolean moveArm(double shoulderAngle, double elbowAngle, double wristState){
+        //checks if the 
+            if(armTal1.getSelectedSensorPosition() <= (shoulderAngle - 5)){
+                armTal1.set(ControlMode.PercentOutput, 1);
+            } else {
+                armTal1.set(ControlMode.PercentOutput, -1);
+            }
+            if(armTal1.getSelectedSensorPosition() <= shoulderAngle){
+                armTal1.set(ControlMode.PercentOutput, .5);
+            } else {
+                armTal1.set(ControlMode.PercentOutput, -.5);
+            }
+        } else {
+            armTal1.set(ControlMode.PercentOutput, 0);
+        }
+
+        if(Math.abs(armTal2.getSelectedSensorPosition()) <= (elbowAngle - 5)){
+            if(armTal2.getSelectedSensorPosition() <= (elbowAngle - 5)){
+                armTal2.set(ControlMode.PercentOutput, 1);
+            } else {
+                armTal2.set(ControlMode.PercentOutput, -1);
+            }
+        } else if (Math.abs(armTal2.getSelectedSensorPosition()) <= elbowAngle){
+            if(armTal2.getSelectedSensorPosition() <= elbowAngle){
+                armTal2.set(ControlMode.PercentOutput, .5);
+            } else {
+                armTal2.set(ControlMode.PercentOutput, -.5);
+            }
+        } else {
+            armTal2.set(ControlMode.PercentOutput, 0);
         }
     }
 }

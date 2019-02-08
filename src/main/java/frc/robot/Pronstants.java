@@ -13,10 +13,8 @@ public interface Pronstants {
     public static final int JOYR_PORT = 1;
     public static final int ARMCONT_PORT = 2;
 
-
-    //Placeholder solenoid ports
-    public static final int HANDSOL_PORT = 3; //Suction cup solenoid
-    public static final int TILTSOL_PORT = 4; //Tilt piston solenoid
+    public static final int HANDSOL_PORT = 3; //Suction cup solenoid*
+    public static final int TILTSOL_PORT = 4; //Tilt piston solenoid*
 
     public static final double DEADZONE = .1; //Drive joystick deadzone
 
@@ -25,13 +23,22 @@ public interface Pronstants {
 
     public static final int LINE_PORT_1 = 0;
     public static final int LINE_PORT_2 = 1;
-    
-
 
     public static final double TURN_SPEED = .5; //Bot turning speed
     public static final double TAL_MAX_VALUE = 400; //Talon maximum speed in RPM
 
     public static final int JOINT_SELECT_BUTTON = 0;
 
+    public static final double[] PREPARE_HATCH_GROUND = {0,0,0};
+    public static final double[] PICKUP_HATCH_GROUND = {0,0,0};
+    public static final double[] PICKUP_HATCH_WALL = {0,0,0};
+    public static final double[] PREPARE_BALL = {0,0,0};
+    public static final double[] PICKUP_BALL = {0,0,0};
+    public static final double[] FIRST_LEVEL_HATCH = {0,0,0};
+    public static final double[] SECOND_LEVEL_HATCH = {0,0,0};
+    public static final double[] FIRST_LEVEL_BALL = {0,0,0};
+    public static final double[] SECOND_LEVEL_BALL = {0,0,0};
+    public static final double[] RESET = {0,0,0};
 
+    public static final double TICKS_PER_DEGREE = 4096 / 360;
 }
