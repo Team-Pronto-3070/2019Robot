@@ -3,7 +3,7 @@ package frc.robot;
 public interface Pronstants {
     
     public static final int ARMTAL1_PORT = 1; //Talon ports
-    public static final int ARMTAL2_PORT = 2; //the arm ports need adjustment
+    public static final int ARMTAL2_PORT = 0; 
     public static final int TALONFL_PORT = 15;
     public static final int TALONBL_PORT = 14;
     public static final int TALONFR_PORT = 12;//15
@@ -13,8 +13,8 @@ public interface Pronstants {
     public static final int JOYR_PORT = 1;
     public static final int ARMCONT_PORT = 2;
 
-    public static final int HANDSOL_PORT = 3; //Suction cup solenoid*
-    public static final int TILTSOL_PORT = 4; //Tilt piston solenoid*
+    public static final int SUCCSOL_PORT = 0; //TODO assign port number Suction cup solenoid*
+    public static final int TILTSOL_PORT = 2; //TODO assign port number Tilt piston solenoid*
 
     public static final double DEADZONE = .1; //Drive joystick deadzone
 
@@ -40,4 +40,6 @@ public interface Pronstants {
 
     public static final double TICKS_PER_DEGREE = 4096 / 360;
     public static final double ARM_MOE = 2; //Margin of error for arm angles, in degrees
+
+    public static final double DRIVE_SCALER = .3;
 }

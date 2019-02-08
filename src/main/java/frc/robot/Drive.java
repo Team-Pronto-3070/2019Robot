@@ -117,8 +117,8 @@ public class Drive implements Pronstants {
     public void driveRamp() { //Non-linear ramping throttle code. 
         double left = (joyL.getRawAxis(1) + TAL_MAX_VALUE) / 2;
         double right = (joyR.getRawAxis(1) + TAL_MAX_VALUE) / 2;
-        talonBR.set(ControlMode.Velocity, right * 4096 / 600);
-        talonBL.set(ControlMode.Velocity, -left * 4096 / 600);
+        talonBR.set(ControlMode.Velocity, (right * 4096 / 600) * DRIVE_SCALER);
+        talonBL.set(ControlMode.Velocity, (-left * 4096 / 600) * DRIVE_SCALER);
         talonFR.set(ControlMode.Follower, TALONBR_PORT);
         talonFL.set(ControlMode.Follower, TALONBL_PORT);
     }

@@ -15,7 +15,7 @@ public class ArmControl implements Pronstants{
 
     XboxController armController;
     TalonSRX armTal1, armTal2;
-    Solenoid handSol, tiltSol;
+    Solenoid succSol, tiltSol;
     boolean succToggle = true;
     boolean manualToggle = false;
 
@@ -34,7 +34,7 @@ public class ArmControl implements Pronstants{
         armTal1 = new TalonSRX(ARMTAL1_PORT); //Talon for shoulder joint
         armTal2 = new TalonSRX(ARMTAL2_PORT); //Talon for elbow joint 
 
-        handSol = new Solenoid(HANDSOL_PORT);
+        succSol = new Solenoid(SUCCSOL_PORT); 
         tiltSol = new Solenoid(TILTSOL_PORT);
         
 
@@ -80,10 +80,10 @@ public class ArmControl implements Pronstants{
 
     public void giveEmTheSucc(){ //Suction cup method
         if(succToggle){ //If boolean is true
-            handSol.set(armController.getBButton()); //When B button is pressed, suction is on. When it isn't pressed it turns off
+            succSol.set(armController.getBButton()); //When B button is pressed, suction is on. When it isn't pressed it turns off
         } else { //If boolean is false
             if(armController.getBButtonPressed()){ //Press B button once, suction turns on. Press it again, it turns off
-                handSol.set(!handSol.get());
+                succSol.set(!succSol.get());
             }
         }
         if(armController.getStartButton()){ //Boolean toggle is toggled with Start button on xbox controller
