@@ -41,4 +41,5 @@ public interface Pronstants {
     public static final double[] RESET = {0,0,0};
 
     public static final double TICKS_PER_DEGREE = 4096 / 360;
+    public static final double ARM_MOE = 2; //Margin of error for arm angles, in degrees
 }

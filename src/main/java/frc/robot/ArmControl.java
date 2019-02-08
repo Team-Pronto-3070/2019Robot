@@ -123,36 +123,38 @@ public class ArmControl implements Pronstants{
             }
     }
 
-    public boolean moveArm(double shoulderAngle, double elbowAngle, double wristState){
-        //checks if the 
-            if(armTal1.getSelectedSensorPosition() <= (shoulderAngle - 5)){
-                armTal1.set(ControlMode.PercentOutput, 1);
-            } else {
-                armTal1.set(ControlMode.PercentOutput, -1);
-            }
-            if(armTal1.getSelectedSensorPosition() <= shoulderAngle){
-                armTal1.set(ControlMode.PercentOutput, .5);
-            } else {
-                armTal1.set(ControlMode.PercentOutput, -.5);
-            }
+    public boolean doubleToBool(double d){
+        if(d == 1){
+            return true;
         } else {
-            armTal1.set(ControlMode.PercentOutput, 0);
+            return false;
         }
+    }
 
-        if(Math.abs(armTal2.getSelectedSensorPosition()) <= (elbowAngle - 5)){
-            if(armTal2.getSelectedSensorPosition() <= (elbowAngle - 5)){
-                armTal2.set(ControlMode.PercentOutput, 1);
-            } else {
-                armTal2.set(ControlMode.PercentOutput, -1);
-            }
-        } else if (Math.abs(armTal2.getSelectedSensorPosition()) <= elbowAngle){
-            if(armTal2.getSelectedSensorPosition() <= elbowAngle){
-                armTal2.set(ControlMode.PercentOutput, .5);
-            } else {
-                armTal2.set(ControlMode.PercentOutput, -.5);
-            }
+    public boolean moveArm(double shoulderAngle, double elbowAngle, double wristState){
+
+        double shoulderRatio = shoulderAngle / armTal1.getSelectedSensorPosition();
+        if(shoulderRatio > 1){
+            shoulderRatio = 1;
+        } else if (shoulderRatio < -1){
+            shoulderRatio = -1;
+        }
+        double elbowRatio = elbowAngle / armTal2.getSelectedSensorPosition();
+        if(elbowRatio > 1){
+            elbowRatio = 1;
+        } else if (elbowRatio < -1){
+            elbowRatio = -1;
+        }
+        
+        armTal1.set(ControlMode.PercentOutput, shoulderRatio);
+        armTal2.set(ControlMode.PercentOutput, elbowRatio);
+        tiltSol.set(doubleToBool(wristState));
+
+        if(Math.abs(armTal1.getSelectedSensorPosition() - shoulderAngle) < ARM_MOE
+           && Math.abs(armTal2.getSelectedSensorPosition() - elbowAngle) < ARM_MOE){
+            return true;
         } else {
-            armTal2.set(ControlMode.PercentOutput, 0);
+            return false;
         }
     }
 }
