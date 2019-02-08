@@ -30,10 +30,8 @@ public interface Pronstants {
     public static final int JOINT_SELECT_BUTTON = 0;
 
     public static final double[] PREPARE_HATCH_GROUND = {0,0,0};
-    public static final double[] PICKUP_HATCH_GROUND = {0,0,0};
-    public static final double[] PICKUP_HATCH_WALL = {0,0,0};
+    public static final double[] PREPARE_HATCH_WALL = {0,0,0};
     public static final double[] PREPARE_BALL = {0,0,0};
-    public static final double[] PICKUP_BALL = {0,0,0};
     public static final double[] FIRST_LEVEL_HATCH = {0,0,0};
     public static final double[] SECOND_LEVEL_HATCH = {0,0,0};
     public static final double[] FIRST_LEVEL_BALL = {0,0,0};

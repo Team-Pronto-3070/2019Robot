@@ -96,29 +96,29 @@ public class ArmControl implements Pronstants{
         ArmPosition pos = ArmPosition.reset;
         switch(pos){
             case prepareHatchGround:
-                
+                while(moveArm(PREPARE_HATCH_GROUND));
                 break;
             case prepareHatchWall:
-                
+                while(moveArm(PREPARE_HATCH_WALL));
                 break;
             case prepareBall:
-                
+                while(moveArm(PREPARE_BALL));
                 break;
             case firstLevelHatch:
-                
+                while(moveArm(FIRST_LEVEL_HATCH));
                 break;
             case secondLevelHatch:
-                
+                while(moveArm(SECOND_LEVEL_HATCH));
                 break;
             case firstLevelBall:
-                
+                while(moveArm(FIRST_LEVEL_BALL));
                 break;
             case secondLevelBall:
-                
+                while(moveArm(SECOND_LEVEL_BALL));
                 break;
             case reset:
             default:
-                
+                while(moveArm(RESET));
                 break;
             }
     }
@@ -131,15 +131,15 @@ public class ArmControl implements Pronstants{
         }
     }
 
-    public boolean moveArm(double shoulderAngle, double elbowAngle, double wristState){
+    public boolean moveArm(double[] angles){
 
-        double shoulderRatio = shoulderAngle - armTal1.getSelectedSensorPosition() / armTal1.getSelectedSensorPosition();
+        double shoulderRatio = angles[0] - armTal1.getSelectedSensorPosition() / armTal1.getSelectedSensorPosition();
         if(shoulderRatio > 1){
             shoulderRatio = 1;
         } else if (shoulderRatio < -1){
             shoulderRatio = -1;
         }
-        double elbowRatio = elbowAngle - armTal2.getSelectedSensorPosition() / armTal2.getSelectedSensorPosition();
+        double elbowRatio = angles[1] - armTal2.getSelectedSensorPosition() / armTal2.getSelectedSensorPosition();
         if(elbowRatio > 1){
             elbowRatio = 1;
         } else if (elbowRatio < -1){
@@ -148,10 +148,10 @@ public class ArmControl implements Pronstants{
         
         armTal1.set(ControlMode.PercentOutput, shoulderRatio);
         armTal2.set(ControlMode.PercentOutput, elbowRatio);
-        tiltSol.set(doubleToBool(wristState));
+        tiltSol.set(doubleToBool(angles[2]));
 
-        if(Math.abs(armTal1.getSelectedSensorPosition() - shoulderAngle) < ARM_MOE
-           && Math.abs(armTal2.getSelectedSensorPosition() - elbowAngle) < ARM_MOE){
+        if(Math.abs(armTal1.getSelectedSensorPosition() - angles[0]) < ARM_MOE
+           && Math.abs(armTal2.getSelectedSensorPosition() - angles[1]) < ARM_MOE){
             return true;
         } else {
             return false;
