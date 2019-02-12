@@ -46,6 +46,10 @@ public class ArmControl implements Pronstants{
 
         armTal1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
         armTal2.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+
+        armTal1.setInverted(false);
+        armTal2.setInverted(true);//TODO: Check which talon of the arm needs to be inverted
+
     }
 
     public void stop(){
