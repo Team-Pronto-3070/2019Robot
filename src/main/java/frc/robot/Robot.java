@@ -111,7 +111,7 @@ public class Robot extends TimedRobot implements Pronstants {
     SmartDashboard.putNumber("BL talon current", drive.talonBL.getOutputCurrent());
 
     SmartDashboard.putBoolean("manual toggle", arm.manualToggle);
-    SmartDashboard.putBoolean("succ toggle", arm.succToggle);
+   
     //SmartDashboard.putBoolean("light", lightSensor.get());//used for testing if the light sensor is detecting light or not
     
     SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());//puts the encoder values on the drive 
