@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.GenericHID;
 import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 
 
@@ -15,7 +15,7 @@ public class ArmControl implements Pronstants{
 
     XboxController armController;
     TalonSRX armTal1, armTal2;
-    Solenoid succSol, tiltSol;
+    DoubleSolenoid succSol, tiltSol;
     public boolean succToggle = true;
     public boolean manualToggle = true;
     boolean canPressManual = true;
@@ -37,8 +37,8 @@ public class ArmControl implements Pronstants{
         armTal1 = new TalonSRX(ARMTAL1_PORT); //Talon for shoulder joint
         armTal2 = new TalonSRX(ARMTAL2_PORT); //Talon for elbow joint 
 
-        succSol = new Solenoid(SUCCSOL_PORT); 
-        tiltSol = new Solenoid(TILTSOL_PORT);
+        succSol = new DoubleSolenoid(SUCCSOL_PORT1, SUCCSOL_PORT2); 
+        tiltSol = new DoubleSolenoid(TILTSOL_PORT1, TILTSOL_PORT2);
         
 
         armTal1.configFactoryDefault();
@@ -74,11 +74,11 @@ public class ArmControl implements Pronstants{
     }
         if(manualToggle){
             manualArmControl();
-            tilt();
-            giveEmTheSucc();
+            tilt();           
         } else {
-            autoArmControl();
+            //autoArmControl();
         }
+        giveEmTheSucc();
     }
 
     public void tilt(){

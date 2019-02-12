@@ -131,11 +131,9 @@ public class Robot extends TimedRobot implements Pronstants {
    */
   @Override
   public void teleopPeriodic() {
-
-      arm.manualArmControl();
-      //arm.controlArm(); //Arm control method
+      arm.controlArm(); //Arm control method
       drive.tankDrive(joyL.getRawAxis(1), joyR.getRawAxis(1));  //Takes joystick inputs, curves inputs
-                          // and sets motors to curved amount
+                                                                // and sets motors to curved amount
   }
 
   /**

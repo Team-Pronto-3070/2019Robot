@@ -13,8 +13,11 @@ public interface Pronstants {
     public static final int JOYR_PORT = 1;
     public static final int ARMCONT_PORT = 2;
 
-    public static final int SUCCSOL_PORT = 0; //TODO assign port number Suction cup solenoid*
-    public static final int TILTSOL_PORT = 2; //TODO assign port number Tilt piston solenoid*
+    public static final int SUCCSOL_PORT1 = 0; //TODO assign port number Suction cup solenoid*
+    public static final int TILTSOL_PORT1 = 2; //TODO assign port number Tilt piston solenoid*
+    public static final int SUCCSOL_PORT2 = 1; //TODO assign port number Suction cup solenoid*
+    public static final int TILTSOL_PORT2 = 3; //TODO assign port number Tilt piston solenoid*
+
 
     public static final double DEADZONE = .1; //Drive joystick deadzone
 
