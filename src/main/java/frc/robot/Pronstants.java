@@ -4,10 +4,10 @@ public interface Pronstants {
     
     public static final int ARMTAL1_PORT = 1; //Talon ports
     public static final int ARMTAL2_PORT = 0; 
-    public static final int TALONFL_PORT = 15;
-    public static final int TALONBL_PORT = 14;
-    public static final int TALONFR_PORT = 12;//15
-    public static final int TALONBR_PORT = 13;//14
+    public static final int TALONFR_PORT = 12;
+    public static final int TALONBR_PORT = 13;
+    public static final int TALONFL_PORT = 14;
+    public static final int TALONBL_PORT = 15;
 
     public static final int JOYL_PORT = 0; //Joystick ports
     public static final int JOYR_PORT = 1;
@@ -39,6 +39,7 @@ public interface Pronstants {
     public static final double[] RESET = {0,0,0};
 
     public static final double TICKS_PER_DEGREE = 4096 / 360;
+    public static final double DEGREES_PER_TICK = 360 / 4096;
     public static final double ARM_MOE = 2; //Margin of error for arm angles, in degrees
 
     public static final double DRIVE_SCALER = .3;

@@ -16,8 +16,11 @@ public class ArmControl implements Pronstants{
     XboxController armController;
     TalonSRX armTal1, armTal2;
     Solenoid succSol, tiltSol;
-    boolean succToggle = true;
-    boolean manualToggle = false;
+    public boolean succToggle = true;
+    public boolean manualToggle = true;
+    boolean canPressManual = true;
+    boolean canPressSucc = true;
+    boolean canPressTilt = true;
 
     public enum ArmPosition{
         prepareHatchGround, prepareHatchWall, prepareBall,
@@ -50,21 +53,27 @@ public class ArmControl implements Pronstants{
         armTal2.set(ControlMode.PercentOutput, 0);
     }
 
-    public void radialNerve(){
-        if(armController.getY(GenericHID.Hand.kLeft) > DEADZONE){ //If joystick is being used
-            armTal1.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
-        } else {
-            armTal1.set(ControlMode.PercentOutput, 0);
-        }
-        if(armController.getY(GenericHID.Hand.kRight) > DEADZONE){ //If joystick is being used
-            armTal1.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kRight));
-        } else {
-            armTal1.set(ControlMode.PercentOutput, 0);
-        }
+    public double encToAngle1(){
+        return ((armTal1.getSelectedSensorPosition() * DEGREES_PER_TICK) % 360);
+    }
+
+    public double encToAngle2(){
+        return ((armTal2.getSelectedSensorPosition() * DEGREES_PER_TICK) % 360);
+    }
+
+
+
+    public void controlArm(){
         if(armController.getBackButtonPressed()){
+            if(canPressManual){
             manualToggle = !manualToggle;
         }
+        canPressManual = false;
+    }else{
+        canPressManual = true;
+    }
         if(manualToggle){
+            manualArmControl();
             tilt();
             giveEmTheSucc();
         } else {
@@ -74,51 +83,81 @@ public class ArmControl implements Pronstants{
 
     public void tilt(){
         if(armController.getBumperPressed(Hand.kRight)){
-            tiltSol.set(!tiltSol.get());
-        }
+            if(canPressSucc){
+                tiltSol.set(!tiltSol.get());
+            }
+        canPressSucc = false;
+    }else{
+        canPressSucc = true;
     }
+        }
+    
 
     public void giveEmTheSucc(){ //Suction cup method
-        if(succToggle){ //If boolean is true
+        if(succToggle){ //if boolean is true
             succSol.set(armController.getBButton()); //When B button is pressed, suction is on. When it isn't pressed it turns off
-        } else { //If boolean is false
+        } else { //if boolean is false
             if(armController.getBButtonPressed()){ //Press B button once, suction turns on. Press it again, it turns off
                 succSol.set(!succSol.get());
             }
         }
         if(armController.getStartButton()){ //Boolean toggle is toggled with Start button on xbox controller
-            succToggle = !succToggle;
-        }
+            if(canPressSucc){
+                succToggle = !succToggle;
+            }
+        canPressSucc = false;
+    }else{
+        canPressSucc = true;
+    }
     }
 
+    public void manualArmControl(){
+        if(armController.getY(GenericHID.Hand.kLeft) > DEADZONE){ //if joystick is being used
+            armTal1.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
+        } else if(armController.getY(GenericHID.Hand.kLeft) < -DEADZONE){ //if joystick is being used
+            armTal1.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
+        } 
+        else {
+            armTal1.set(ControlMode.PercentOutput, 0);
+        }
+        if(armController.getY(GenericHID.Hand.kRight) > DEADZONE){ //if joystick is being used
+            armTal2.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kRight));
+        } else if(armController.getY(GenericHID.Hand.kRight) < -DEADZONE){
+            armTal2.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kRight));
+        } 
+        else {
+            armTal2.set(ControlMode.PercentOutput, 0);
+        }
+        tilt();
+    }
     
     public void autoArmControl(){
         ArmPosition pos = ArmPosition.reset;
         switch(pos){
             case prepareHatchGround:
-                while(moveArm(PREPARE_HATCH_GROUND));
+                if(moveArm(PREPARE_HATCH_GROUND));
                 break;
             case prepareHatchWall:
-                while(moveArm(PREPARE_HATCH_WALL));
+                if(moveArm(PREPARE_HATCH_WALL));
                 break;
             case prepareBall:
-                while(moveArm(PREPARE_BALL));
+                if(moveArm(PREPARE_BALL));
                 break;
             case firstLevelHatch:
-                while(moveArm(FIRST_LEVEL_HATCH));
+                if(moveArm(FIRST_LEVEL_HATCH));
                 break;
             case secondLevelHatch:
-                while(moveArm(SECOND_LEVEL_HATCH));
+                if(moveArm(SECOND_LEVEL_HATCH));
                 break;
             case firstLevelBall:
-                while(moveArm(FIRST_LEVEL_BALL));
+                if(moveArm(FIRST_LEVEL_BALL));
                 break;
             case secondLevelBall:
-                while(moveArm(SECOND_LEVEL_BALL));
+                if(moveArm(SECOND_LEVEL_BALL));
                 break;
             case reset:
             default:
-                while(moveArm(RESET));
+                if(moveArm(RESET));
                 break;
             }
     }
@@ -130,16 +169,25 @@ public class ArmControl implements Pronstants{
             return false;
         }
     }
+    
 
     public boolean moveArm(double[] angles){
+        double joint1 = armTal1.getSelectedSensorPosition();
+        double joint2 = armTal1.getSelectedSensorPosition();
+        if(joint1==0){
+            joint1 = 1;
+        }
+        if(joint2==0){
+            joint2 = 1;
+        }
 
-        double shoulderRatio = angles[0] - armTal1.getSelectedSensorPosition() / armTal1.getSelectedSensorPosition();
+        double shoulderRatio = (angles[0] - joint1) / joint1;
         if(shoulderRatio > 1){
             shoulderRatio = 1;
         } else if (shoulderRatio < -1){
             shoulderRatio = -1;
         }
-        double elbowRatio = angles[1] - armTal2.getSelectedSensorPosition() / armTal2.getSelectedSensorPosition();
+        double elbowRatio = angles[1] - joint2 / joint2;
         if(elbowRatio > 1){
             elbowRatio = 1;
         } else if (elbowRatio < -1){
@@ -150,8 +198,8 @@ public class ArmControl implements Pronstants{
         armTal2.set(ControlMode.PercentOutput, elbowRatio);
         tiltSol.set(doubleToBool(angles[2]));
 
-        if(Math.abs(armTal1.getSelectedSensorPosition() - angles[0]) < ARM_MOE
-           && Math.abs(armTal2.getSelectedSensorPosition() - angles[1]) < ARM_MOE){
+        if(Math.abs(encToAngle1() - angles[0]) < ARM_MOE
+           && Math.abs(encToAngle2() - angles[1]) < ARM_MOE){
             return true;
         } else {
             return false;

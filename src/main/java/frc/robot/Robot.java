@@ -32,7 +32,7 @@ import edu.wpi.first.cameraserver.CameraServer;
  * creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends IterativeRobot implements Pronstants {
+public class Robot extends TimedRobot implements Pronstants {
   public static final ADIS16448_IMU imu = new ADIS16448_IMU();
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
@@ -40,12 +40,12 @@ public class Robot extends IterativeRobot implements Pronstants {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   Drive drive;
-  LineSense lineSense;
+  //LineSense lineSense;
 
   ArmControl arm;
   Joystick joyL, joyR, joyArm;
   AnalogInput pressure;
-  DigitalInput lightSensor;
+  //DigitalInput lightSensor;
   // ShuffleboardTab shuffleboardtab;
   private NetworkTableEntry gyroYawEntry;
 
@@ -58,13 +58,13 @@ public class Robot extends IterativeRobot implements Pronstants {
     SmartDashboard.putNumber("Angle", 0);
 
     
-    lineSense = new LineSense(drive, imu);
+    //lineSense = new LineSense(drive, imu);
     joyL = new Joystick(0);
     joyR = new Joystick(1);
     drive = new Drive(imu);
     arm = new ArmControl();
     pressure = new AnalogInput(0);
-    lightSensor = new DigitalInput(0);
+  //  lightSensor = new DigitalInput(0);
 
 
 
@@ -76,17 +76,17 @@ public class Robot extends IterativeRobot implements Pronstants {
       
 		// Get the UsbCamera from CameraServer
 
-    UsbCamera camera = CameraServer.getInstance().startAutomaticCapture("Front Camera", 0);
-    UsbCamera line = CameraServer.getInstance().startAutomaticCapture("Line Camera", 1);
+   // UsbCamera camera = CameraServer.getInstance().startAutomaticCapture("Front Camera", 0);
+   // UsbCamera line = CameraServer.getInstance().startAutomaticCapture("Line Camera", 1);
     // Set the resolution
-    camera.setResolution(320, 240);
-    camera.setExposureAuto();
+   // camera.setResolution(320, 240);
+   // camera.setExposureAuto();
     // Get a CvSink. This will capture Mats from the camera
-    CvSink cvSink = CameraServer.getInstance().getVideo();
+    //CvSink cvSink = CameraServer.getInstance().getVideo();
     // Setup a CvSource. This will send images back to the Dashboard
-    CvSource outputStream = CameraServer.getInstance().putVideo("Rectangle", 320, 240);
+   // CvSource outputStream = CameraServer.getInstance().putVideo("Rectangle", 320, 240);
     // imu.reset();
-    imu.calibrate();
+    //imu.calibrate();
   }
 
   /**
@@ -110,13 +110,15 @@ public class Robot extends IterativeRobot implements Pronstants {
     SmartDashboard.putNumber("BR talon current", drive.talonBR.getOutputCurrent());
     SmartDashboard.putNumber("BL talon current", drive.talonBL.getOutputCurrent());
 
-    SmartDashboard.putBoolean("light", lightSensor.get());//used for testing if the light sensor is detecting light or not
+    SmartDashboard.putBoolean("manual toggle", arm.manualToggle);
+    SmartDashboard.putBoolean("succ toggle", arm.succToggle);
+    //SmartDashboard.putBoolean("light", lightSensor.get());//used for testing if the light sensor is detecting light or not
     
     SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());//puts the encoder values on the drive 
-    SmartDashboard.putNumber("right encoder", drive.talonFR.getSelectedSensorPosition());
+    //SmartDashboard.putNumber("right encoder", drive.talonFR.getSelectedSensorPosition());
 
     SmartDashboard.putNumber("lower joint encoder",  arm.armTal1.getSelectedSensorPosition());
-    SmartDashboard.putNumber("lower joint encoder",  arm.armTal2.getSelectedSensorPosition());
+   // SmartDashboard.putNumber("upper joint encoder",  arm.armTal2.getSelectedSensorPosition());
     
     SmartDashboard.putBoolean("calibration finished: ", imu.calFinished());//used to tell driver if the gyro is done calibrating
 
@@ -130,14 +132,10 @@ public class Robot extends IterativeRobot implements Pronstants {
   @Override
   public void teleopPeriodic() {
 
-    if(joyL.getRawButton(3)) {
-      arm.radialNerve(); //Arm control method
-    }else if(joyL.getRawButton(2)){
-      drive.driveToAngle(90);
-    }else{ 
-      drive.driveRamp();  //Takes joystick inputs, curves inputs
+      arm.manualArmControl();
+      //arm.controlArm(); //Arm control method
+      drive.tankDrive(joyL.getRawAxis(1), joyR.getRawAxis(1));  //Takes joystick inputs, curves inputs
                           // and sets motors to curved amount
-    }
   }
 
   /**
