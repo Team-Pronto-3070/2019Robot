@@ -85,9 +85,13 @@ public class ArmControl implements Pronstants{
         giveEmTheSucc();
     }
 
-    public DoubleSolenoid.Value switchValue(DoubleSolenoid.Value val){
+    public DoubleSolenoid.Value switchValue(DoubleSolenoid.Value val, boolean tilt){
         if(val == DoubleSolenoid.Value.kForward){
-            return DoubleSolenoid.Value.kOff;
+            if(tilt){
+                return DoubleSolenoid.Value.kReverse;
+            } else {
+                return DoubleSolenoid.Value.kOff;
+            }
         } else {
             return DoubleSolenoid.Value.kForward;
         }
@@ -104,7 +108,7 @@ public class ArmControl implements Pronstants{
     public void tilt(){
         if(armController.getBumperPressed(Hand.kRight)){
             if(canPressSucc){
-                tiltSol.set(switchValue(tiltSol.get()));
+                tiltSol.set(switchValue(tiltSol.get(), true));
             }
         canPressSucc = false;
     }else{
@@ -118,7 +122,7 @@ public class ArmControl implements Pronstants{
             succSol.set(boolToValue(armController.getBButton())); //When B button is pressed, suction is on. When it isn't pressed it turns off
         } else { //if boolean is false
             if(armController.getBButtonPressed()){ //Press B button once, suction turns on. Press it again, it turns off
-                succSol.set(switchValue(succSol.get()));
+                succSol.set(switchValue(succSol.get(), false));
             }
         }
         if(armController.getStartButton()){ //Boolean toggle is toggled with Start button on xbox controller
