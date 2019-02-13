@@ -85,10 +85,26 @@ public class ArmControl implements Pronstants{
         giveEmTheSucc();
     }
 
+    public DoubleSolenoid.Value switchValue(DoubleSolenoid.Value val){
+        if(val == DoubleSolenoid.Value.kForward){
+            return DoubleSolenoid.Value.kOff;
+        } else {
+            return DoubleSolenoid.Value.kForward;
+        }
+    }
+
+    public DoubleSolenoid.Value boolToValue(boolean val){
+        if(val){
+            return DoubleSolenoid.Value.kForward;
+        } else {
+            return DoubleSolenoid.Value.kOff;
+        }
+    }
+
     public void tilt(){
         if(armController.getBumperPressed(Hand.kRight)){
             if(canPressSucc){
-                tiltSol.set(!tiltSol.get());
+                tiltSol.set(switchValue(tiltSol.get()));
             }
         canPressSucc = false;
     }else{
@@ -99,10 +115,10 @@ public class ArmControl implements Pronstants{
 
     public void giveEmTheSucc(){ //Suction cup method
         if(succToggle){ //if boolean is true
-            succSol.set(armController.getBButton()); //When B button is pressed, suction is on. When it isn't pressed it turns off
+            succSol.set(boolToValue(armController.getBButton())); //When B button is pressed, suction is on. When it isn't pressed it turns off
         } else { //if boolean is false
             if(armController.getBButtonPressed()){ //Press B button once, suction turns on. Press it again, it turns off
-                succSol.set(!succSol.get());
+                succSol.set(switchValue(succSol.get()));
             }
         }
         if(armController.getStartButton()){ //Boolean toggle is toggled with Start button on xbox controller
@@ -200,7 +216,7 @@ public class ArmControl implements Pronstants{
         
         armTal1.set(ControlMode.PercentOutput, shoulderRatio);
         armTal2.set(ControlMode.PercentOutput, elbowRatio);
-        tiltSol.set(doubleToBool(angles[2]));
+        tiltSol.set(boolToValue(doubleToBool(angles[2])));
 
         if(Math.abs(encToAngle1() - angles[0]) < ARM_MOE
            && Math.abs(encToAngle2() - angles[1]) < ARM_MOE){
