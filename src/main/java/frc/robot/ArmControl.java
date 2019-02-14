@@ -37,11 +37,10 @@ public class ArmControl implements Pronstants{
         tiltSol = new DoubleSolenoid(TILTSOL_PORT1, TILTSOL_PORT2);
         
 
-        // armTal1.configFactoryDefault();
-        // armTal2.configFactoryDefault();
-        armTal2.setSelectedSensorPosition(0);
-        // armTal1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
-        // armTal2.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+        armTal1.configFactoryDefault();
+        armTal2.configFactoryDefault();
+        armTal1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+        armTal2.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
         armTal1.setInverted(false);
         armTal2.setInverted(true);//TODO: Check which talon of the arm needs to be inverted
@@ -67,7 +66,7 @@ public class ArmControl implements Pronstants{
         
             manualArmControl();
             tilt();           
-           autoArmControl();
+           // autoArmControl();
         
         succSol.set(armController.getBButton() ? Value.kForward : Value.kReverse); //When B button is pressed, suction is on. When it isn't pressed it turns off
     }
@@ -107,34 +106,33 @@ public class ArmControl implements Pronstants{
     
     public void autoArmControl(){
         ArmPosition pos = ArmPosition.reset;
-         switch(pos){
-             case prepareHatchGround:
-                 if(moveArm(PREPARE_HATCH_GROUND));
-                 break;
-             case prepareHatchWall:
-                 if(moveArm(PREPARE_HATCH_WALL));
-                 break;
-             case prepareBall:
-                 if(moveArm(PREPARE_BALL));
-                 break;
-             case firstLevelHatch:
-                 if(moveArm(FIRST_LEVEL_HATCH));
-                 break;
-             case secondLevelHatch:
-                 if(moveArm(SECOND_LEVEL_HATCH));
-                 break;
-             case firstLevelBall:
-                 if(moveArm(FIRST_LEVEL_BALL));
-                 break;
-             case secondLevelBall:
-                 if(moveArm(SECOND_LEVEL_BALL));
-                 break;
-             case reset:
-             default:
-                 if(moveArm(RESET));
-                 break;
-             }
-     }
+        switch(pos){
+            case prepareHatchGround:
+                if(moveArm(PREPARE_HATCH_GROUND));
+                break;
+            case prepareHatchWall:
+                if(moveArm(PREPARE_HATCH_WALL));
+                break;
+            case prepareBall:
+                if(moveArm(PREPARE_BALL));
+                break;
+            case firstLevelHatch:
+                if(moveArm(FIRST_LEVEL_HATCH));
+                break;
+            case secondLevelHatch:
+                if(moveArm(SECOND_LEVEL_HATCH));
+                break;
+            case firstLevelBall:
+                if(moveArm(FIRST_LEVEL_BALL));
+                break;
+            case secondLevelBall:
+                if(moveArm(SECOND_LEVEL_BALL));
+                break;
+            case reset:
+                if(moveArm(RESET));
+                break;
+            }
+    }
 
     public Value doubleToSol(double d){
         if(d == 1){
@@ -145,36 +143,39 @@ public class ArmControl implements Pronstants{
     }
     
 
-     public boolean moveArm(double[] angles){
-         double joint1 = armTal1.getSelectedSensorPosition();
-         double joint2 = armTal1.getSelectedSensorPosition();
-         if(joint1==0){
-             joint1 = 1;
-         }
-         if(joint2==0){
-             joint2 = 1;
-         }
+    public boolean moveArm(double[] angles){
+        double joint1 = armTal1.getSelectedSensorPosition();
+        double joint2 = armTal1.getSelectedSensorPosition();
+        if(joint1==0){
+            joint1 = 1;
+        }
+        if(joint2==0){
+            joint2 = 1;
+        }
+
         double shoulderRatio = (angles[0] - joint1) / joint1;
-         if(shoulderRatio > 1){
-             shoulderRatio = 1;
-         } else if (shoulderRatio < -1){
-             shoulderRatio = -1;
-         }
-         double elbowRatio = angles[1] - joint2 / joint2;
-         if(elbowRatio > 1){
-             elbowRatio = 1;
-         } else if (elbowRatio < -1){
-             elbowRatio = -1;
-         }
-      
-         armTal1.set(ControlMode.PercentOutput, shoulderRatio);
-         armTal2.set(ControlMode.PercentOutput, elbowRatio);
-         tiltSol.set(doubleToSol(angles[2]));
+        if(shoulderRatio > 1){
+            shoulderRatio = 1;
+        } else if (shoulderRatio < -1){
+            shoulderRatio = -1;
+        }
+
+        double elbowRatio = angles[1] - joint2 / joint2;
+        if(elbowRatio > 1){
+            elbowRatio = 1;
+        } else if (elbowRatio < -1){
+            elbowRatio = -1;
+        }
+        
+        armTal1.set(ControlMode.PercentOutput, shoulderRatio);
+        armTal2.set(ControlMode.PercentOutput, elbowRatio);
+        tiltSol.set(doubleToSol(angles[2]));
+
         if(Math.abs(encToAngle1() - angles[0]) < ARM_MOE
-            && Math.abs(encToAngle2() - angles[1]) < ARM_MOE){
-             return true;
-         } else {
-             return false;
-         }
-     }
+           && Math.abs(encToAngle2() - angles[1]) < ARM_MOE){
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
