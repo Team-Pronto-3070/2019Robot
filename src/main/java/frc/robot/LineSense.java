@@ -35,10 +35,11 @@
         }
         if(lineSensorL.get() && lineSensorR.get()){
             drive.driveToAngle(angle);
-            linedUp = true;
-        }
-        if(linedUp){
-
+            if(Math.abs(drive.getAngle() - angle) >= 0){
+                linedUp = true;
+                drive.stop();
+            }
+            
         }
 
     }

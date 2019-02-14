@@ -6,6 +6,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -19,6 +20,9 @@ import edu.wpi.first.wpilibj.*;
 import java.util.Map;
 import java.lang.Double;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.*;
 
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
@@ -66,7 +70,7 @@ public class Robot extends TimedRobot implements Pronstants {
     pressure = new AnalogInput(0);
   //  lightSensor = new DigitalInput(0);
 
-
+    arm.succSol.set(Value.kReverse);
 
     gyroYawEntry = Shuffleboard.getTab("Gyro")
       .add("Gyro Yaw", new Double(1))
@@ -100,30 +104,30 @@ public class Robot extends TimedRobot implements Pronstants {
    */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("Gyro-Z", imu.getAngleZ());// outputs the gyro value to smartDashboard
-
     SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());//not used currently, might be used later
-    gyroYawEntry.setDouble(imu.getYaw());
 
-    SmartDashboard.putNumber("FR talon current", drive.talonFR.getOutputCurrent());//outputs the current of the talons to the dashboard
-    SmartDashboard.putNumber("FL talon current", drive.talonFL.getOutputCurrent());
-    SmartDashboard.putNumber("BR talon current", drive.talonBR.getOutputCurrent());
-    SmartDashboard.putNumber("BL talon current", drive.talonBL.getOutputCurrent());
+    // SmartDashboard.putNumber("FR talon current", drive.talonFR.getOutputCurrent());//outputs the current of the talons to the dashboard
+    // SmartDashboard.putNumber("FL talon current", drive.talonFL.getOutputCurrent());
+    // SmartDashboard.putNumber("BR talon current", drive.talonBR.getOutputCurrent());
+    // SmartDashboard.putNumber("BL talon current", drive.talonBL.getOutputCurrent());
 
-    SmartDashboard.putBoolean("manual toggle", arm.manualToggle);
+    SmartDashboard.putNumber("Bottom joing talon current", arm.armTal1.getOutputCurrent());
+     SmartDashboard.putNumber("Top joint talon current", arm.armTal2.getOutputCurrent());
+
+    SmartDashboard.putNumber("Arm Encoder 1", arm.armTal1.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Arm Encoder 2", arm.armTal2.getSelectedSensorPosition());
    
     //SmartDashboard.putBoolean("light", lightSensor.get());//used for testing if the light sensor is detecting light or not
     
     SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());//puts the encoder values on the drive 
     //SmartDashboard.putNumber("right encoder", drive.talonFR.getSelectedSensorPosition());
-
-    SmartDashboard.putNumber("lower joint encoder",  arm.armTal1.getSelectedSensorPosition());
-   // SmartDashboard.putNumber("upper joint encoder",  arm.armTal2.getSelectedSensorPosition());
-    
-    SmartDashboard.putBoolean("calibration finished: ", imu.calFinished());//used to tell driver if the gyro is done calibrating
-
-    SmartDashboard.putBoolean("Talons:", drive.turned);//tells the driver if the robot has turned
+   // SmartDashboard.putBoolean("Talons:", drive.turned);//tells the driver if the robot has turned
     SmartDashboard.putNumber("Angle of the zedd axis", drive.getAngle());//this gives the angle of the robot relative to how it started
+    SmartDashboard.putNumber("pressure", pressure.getValue());
+    SmartDashboard.putNumber("joy value", arm.armController.getY(GenericHID.Hand.kRight));
+  }
+
+  public void teleopInit(){
   }
 
   /**
@@ -131,8 +135,10 @@ public class Robot extends TimedRobot implements Pronstants {
    */
   @Override
   public void teleopPeriodic() {
-      arm.controlArm(); //Arm control method
-      drive.tankDrive(joyL.getRawAxis(1), joyR.getRawAxis(1));  //Takes joystick inputs, curves inputs
+    arm.armTal2.set(ControlMode.PercentOutput, arm.armController.getY(GenericHID.Hand.kRight));
+    arm.armTal1.set(ControlMode.PercentOutput, arm.armController.getY(GenericHID.Hand.kLeft));
+     // arm.controlArm(); //Arm control method
+      //drive.tankDrive(joyL.getRawAxis(1), joyR.getRawAxis(1));  //Takes joystick inputs, curves inputs
                                                                 // and sets motors to curved amount
   }
 
