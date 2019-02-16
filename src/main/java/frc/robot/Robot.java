@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.*;
 import java.util.Map;
 import java.lang.Double;
+import edu.wpi.first.wpilibj.Compressor;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -43,6 +44,10 @@ public class Robot extends TimedRobot implements Pronstants {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+  boolean canPressComp = true;
+  boolean compGo = true;
+  double[] position = {0,0,0}; 
+
   Drive drive;
   //LineSense lineSense;
 
@@ -52,6 +57,7 @@ public class Robot extends TimedRobot implements Pronstants {
   //DigitalInput lightSensor;
   // ShuffleboardTab shuffleboardtab;
   private NetworkTableEntry gyroYawEntry;
+  Compressor comp;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -68,8 +74,9 @@ public class Robot extends TimedRobot implements Pronstants {
     drive = new Drive(imu);
     arm = new ArmControl();
     pressure = new AnalogInput(0);
+    comp = new Compressor(0);
   //  lightSensor = new DigitalInput(0);
-
+    comp.start();
     arm.succSol.set(Value.kReverse);
 
     gyroYawEntry = Shuffleboard.getTab("Gyro")
@@ -78,19 +85,22 @@ public class Robot extends TimedRobot implements Pronstants {
       .withProperties(Map.of("min", -180, "max", 180))
       .getEntry();
       
-		// Get the UsbCamera from CameraServer
+	// Get the UsbCamera from CameraServer
 
-   // UsbCamera camera = CameraServer.getInstance().startAutomaticCapture("Front Camera", 0);
-   // UsbCamera line = CameraServer.getInstance().startAutomaticCapture("Line Camera", 1);
-    // Set the resolution
-   // camera.setResolution(320, 240);
-   // camera.setExposureAuto();
-    // Get a CvSink. This will capture Mats from the camera
-    //CvSink cvSink = CameraServer.getInstance().getVideo();
-    // Setup a CvSource. This will send images back to the Dashboard
-   // CvSource outputStream = CameraServer.getInstance().putVideo("Rectangle", 320, 240);
-    // imu.reset();
-    //imu.calibrate();
+  UsbCamera front = CameraServer.getInstance().startAutomaticCapture("Front Camera", 0);
+  UsbCamera back = CameraServer.getInstance().startAutomaticCapture("Line Camera", 1);
+  // Set the resolution
+  front.setResolution(320, 240);
+  back.setResolution(320, 240);
+  // Get a CvSink. This will capture Mats from the camera
+  CvSink cvSink = CameraServer.getInstance().getVideo();
+  // Setup a CvSource. This will send images back to the Dashboard
+  CvSource outputStream = CameraServer.getInstance().putVideo("Rectangle", 320, 240);
+  //imu.reset();
+  //imu.calibrate();
+  SmartDashboard.putNumber("tal1", 0);
+  SmartDashboard.putNumber("tal2", 0);
+  SmartDashboard.putNumber("eh", 0);
   }
 
   /**
@@ -122,7 +132,7 @@ public class Robot extends TimedRobot implements Pronstants {
     SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());//puts the encoder values on the drive 
     //SmartDashboard.putNumber("right encoder", drive.talonFR.getSelectedSensorPosition());
    // SmartDashboard.putBoolean("Talons:", drive.turned);//tells the driver if the robot has turned
-    SmartDashboard.putNumber("Angle of the zedd axis", drive.getAngle());//this gives the angle of the robot relative to how it started
+    SmartDashboard.putNumber("Angle of the z axis", drive.getAngle());//this gives the angle of the robot relative to how it started
     SmartDashboard.putNumber("pressure", pressure.getValue());
     SmartDashboard.putNumber("joy value", arm.armController.getY(GenericHID.Hand.kRight));
   }
@@ -135,12 +145,31 @@ public class Robot extends TimedRobot implements Pronstants {
    */
   @Override
   public void teleopPeriodic() {
-    arm.armTal2.set(ControlMode.PercentOutput, arm.armController.getY(GenericHID.Hand.kRight));
-    arm.armTal1.set(ControlMode.PercentOutput, arm.armController.getY(GenericHID.Hand.kLeft));
-     // arm.controlArm(); //Arm control method
-      //drive.tankDrive(joyL.getRawAxis(1), joyR.getRawAxis(1));  //Takes joystick inputs, curves inputs
-                                                                // and sets motors to curved amount
+    arm.controlArm(); //Arm control method
+    if(arm.armController.getXButton()){
+      arm.moveArm(position);
+    }
+    drive.tankDrive(joyL.getRawAxis(1), joyR.getRawAxis(1));  //Takes joystick inputs, curves inputs
+    // and sets motors to curved amount
+    if(joyL.getRawButton(8)){//if right bumper is pressed
+      if(canPressComp){//if button press will tilt
+          //set it to the opposite value
+          compGo = !compGo;
+          if(compGo){
+            comp.start();
+          }else{
+            comp.stop();
+          }
+      }
+  canPressComp = false;//button press will no longer tilt
+}else{//right bumper isnt pressed 
+  canPressComp = true;//button press is able to tilt
+}
+position[0] = SmartDashboard.getNumber("tal1", 0.0);
+position[1] = SmartDashboard.getNumber("tal2", 0.0);
+position[2] = SmartDashboard.getNumber("eh", 0.0);
   }
+
 
   /**
    * This function is called periodically during test mode.

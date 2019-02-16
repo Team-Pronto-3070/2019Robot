@@ -33,16 +33,16 @@ public interface Pronstants {
     public static final int JOINT_SELECT_BUTTON = 0;
 
     public static final double[] PREPARE_HATCH_GROUND = {0,0,0};
-    public static final double[] PREPARE_HATCH_WALL = {0,0,0};
-    public static final double[] PREPARE_BALL = {0,0,0};
-    public static final double[] FIRST_LEVEL_HATCH = {0,0,0};
-    public static final double[] SECOND_LEVEL_HATCH = {0,0,0};
-    public static final double[] FIRST_LEVEL_BALL = {0,0,0};
-    public static final double[] SECOND_LEVEL_BALL = {0,0,0};
+    public static final double[] PREPARE_BALL_GROUND = {0,0,0};
+    public static final double[] FIRST_LEVEL_HATCH = {166,542,0};//19 inches
+    public static final double[] SECOND_LEVEL_HATCH = {-210,-132,0};//47 inches
+    public static final double[] FIRST_LEVEL_BALL = {-2,355,0};//27.5 inches
+    public static final double[] SECOND_LEVEL_BALL = {-119,-328,0};//55.5 inches
+    public static final double[] CARGO_SHIP_BALL = {0,0,0};
+    public static final double[] NO_THING = {5,3,6};
+
     public static final double[] RESET = {0,0,0};
 
-    public static final double TICKS_PER_DEGREE = 4096 / 360;
-    public static final double DEGREES_PER_TICK = 360 / 4096;
     public static final double ARM_MOE = 2; //Margin of error for arm angles, in degrees
 
     public static final double DRIVE_SCALER = .3;
