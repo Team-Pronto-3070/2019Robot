@@ -98,9 +98,9 @@ public class Robot extends TimedRobot implements Pronstants {
   CvSource outputStream = CameraServer.getInstance().putVideo("Rectangle", 320, 240);
   //imu.reset();
   //imu.calibrate();
-  SmartDashboard.putNumber("tal1", 0);
-  SmartDashboard.putNumber("tal2", 0);
-  SmartDashboard.putNumber("eh", 0);
+
+  arm.armTal1.setSelectedSensorPosition(0);
+  arm.armTal2.setSelectedSensorPosition(0);
   }
 
   /**
@@ -138,6 +138,9 @@ public class Robot extends TimedRobot implements Pronstants {
   }
 
   public void teleopInit(){
+    SmartDashboard.putNumber("tal1", 0);
+    SmartDashboard.putNumber("tal2", 0);
+    SmartDashboard.putNumber("eh", 0);
   }
 
   /**
@@ -153,13 +156,13 @@ public class Robot extends TimedRobot implements Pronstants {
     // and sets motors to curved amount
     if(joyL.getRawButton(8)){//if right bumper is pressed
       if(canPressComp){//if button press will tilt
-          //set it to the opposite value
-          compGo = !compGo;
-          if(compGo){
-            comp.start();
-          }else{
-            comp.stop();
-          }
+        //set it to the opposite value
+        compGo = !compGo;
+        if(compGo){
+         comp.start();
+        }else{
+          comp.stop();
+        }
       }
   canPressComp = false;//button press will no longer tilt
 }else{//right bumper isnt pressed 

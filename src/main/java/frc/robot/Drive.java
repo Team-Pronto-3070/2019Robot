@@ -39,8 +39,8 @@ public class Drive implements Pronstants {
         talonFR.configFactoryDefault();
         talonBR.configFactoryDefault();
 
-        talonFL.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
-        talonFR.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+        talonFL.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative,  Pronstants.kPIDLoopIdx, Pronstants.kTimeoutMs);
+        talonFR.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative,  Pronstants.kPIDLoopIdx, Pronstants.kTimeoutMs);
       
         joyL = new Joystick(JOYL_PORT); //Defines joysticks
         joyR = new Joystick(JOYR_PORT);

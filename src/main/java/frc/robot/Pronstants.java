@@ -17,7 +17,7 @@ public interface Pronstants {
     public static final int TILTSOL_PORT1 = 2; //TODO assign port number Tilt piston solenoid*
     public static final int SUCCSOL_PORT2 = 1; //TODO assign port number Suction cup solenoid*
     public static final int TILTSOL_PORT2 = 3; //TODO assign port number Tilt piston solenoid*
-
+    public static final int VACUSOL_PORT = 4;
 
     public static final double DEADZONE = .1; //Drive joystick deadzone
 
@@ -34,16 +34,24 @@ public interface Pronstants {
 
     public static final double[] PREPARE_HATCH_GROUND = {0,0,0};
     public static final double[] PREPARE_BALL_GROUND = {0,0,0};
-    public static final double[] FIRST_LEVEL_HATCH = {166,542,0};//19 inches
-    public static final double[] SECOND_LEVEL_HATCH = {-210,-132,0};//47 inches
-    public static final double[] FIRST_LEVEL_BALL = {-2,355,0};//27.5 inches
-    public static final double[] SECOND_LEVEL_BALL = {-119,-328,0};//55.5 inches
+    public static final double[] FIRST_LEVEL_HATCH = {-7,386,1};//19 inches
+    public static final double[] SECOND_LEVEL_HATCH = {-300,-230,1};//47 inches
+    public static final double[] FIRST_LEVEL_BALL = {-2,238,1};//27.5 inches
+    public static final double[] SECOND_LEVEL_BALL = {-475,-504,0};//55.5 inches
     public static final double[] CARGO_SHIP_BALL = {0,0,0};
     public static final double[] NO_THING = {5,3,6};
 
+    //1418 and -3395 are the encoder values (1st value is shoulder and 2nd is elbow)
+    //34 inches between bottom of arm frame and wrist axle
+    //11 inches from bottom of frame to the top corner of the elbow encoder bracket
     public static final double[] RESET = {0,0,0};
 
-    public static final double ARM_MOE = 2; //Margin of error for arm angles, in degrees
+    public static final double ARM_MOE = 30; //Margin of error for arm angles, in degrees
 
     public static final double DRIVE_SCALER = .3;
+
+    public static final int kSlotIdx = 0;
+    public static final int kPIDLoopIdx = 0;
+    public static final int kTimeoutMs = 30;
+
 }
