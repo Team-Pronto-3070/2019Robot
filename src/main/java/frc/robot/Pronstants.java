@@ -39,7 +39,7 @@ public interface Pronstants {
     public static final double[] FIRST_LEVEL_BALL = {-2,238,1};//27.5 inches
     public static final double[] SECOND_LEVEL_BALL = {-475,-504,0};//55.5 inches
     public static final double[] CARGO_SHIP_BALL = {0,0,0};
-    public static final double[] NO_THING = {5,3,6};
+    
 
     //1418 and -3395 are the encoder values (1st value is shoulder and 2nd is elbow)
     //34 inches between bottom of arm frame and wrist axle

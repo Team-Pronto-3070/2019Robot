@@ -122,7 +122,7 @@ public class ArmControl implements Pronstants{
         }else if(armController.getStartButtonPressed()){
            return RESET;
         }else{
-            return NO_THING;
+            
         }
     }
     
@@ -140,48 +140,48 @@ public class ArmControl implements Pronstants{
         }
     }
 
-    public void moveArm(double[] encValues){
+    // public void moveArm(double[] encValues){
 
-        double joint1 = armTal1.getSelectedSensorPosition();
-        double joint2 = armTal2.getSelectedSensorPosition();
-        if(joint1==0){
-            joint1 = 1;
-        }
-        if(joint2==0){
-            joint2 = 1;
-        }
-                                //50        -   45  / 45
-        double shoulderRatio = 2*((encValues[0] - joint1) / joint1);
-        SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
-        if(shoulderRatio > 0){
-            shoulderRatio = 1;
-        } else if (shoulderRatio < 0){
-            shoulderRatio = -1;
-        }
-        if(Math.abs(joint1-encValues[0])<ARM_MOE){
-            shoulderRatio = 0;
-        }
+    //     double joint1 = armTal1.getSelectedSensorPosition();
+    //     double joint2 = armTal2.getSelectedSensorPosition();
+    //     if(joint1==0){
+    //         joint1 = 1;
+    //     }
+    //     if(joint2==0){
+    //         joint2 = 1;
+    //     }
+    //                             //50        -   45  / 45
+    //     double shoulderRatio = 2*((encValues[0] - joint1) / joint1);
+    //     SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
+    //     if(shoulderRatio > 0){
+    //         shoulderRatio = 1;
+    //     } else if (shoulderRatio < 0){
+    //         shoulderRatio = -1;
+    //     }
+    //     if(Math.abs(joint1-encValues[0])<ARM_MOE){
+    //         shoulderRatio = 0;
+    //     }
 
 
-        double elbowRatio = 2*((encValues[1] - joint2) / joint2);
-        SmartDashboard.putNumber("elbowRatio", elbowRatio);
-        if(elbowRatio > 0){
-            elbowRatio = 1;
-        } else if (elbowRatio < 0){
-            elbowRatio = -1;
-        }
+    //     double elbowRatio = 2*((encValues[1] - joint2) / joint2);
+    //     SmartDashboard.putNumber("elbowRatio", elbowRatio);
+    //     if(elbowRatio > 0){
+    //         elbowRatio = 1;
+    //     } else if (elbowRatio < 0){
+    //         elbowRatio = -1;
+    //     }
         
-        if(Math.abs(joint2-encValues[1])<ARM_MOE){
-            elbowRatio = 0;
-        }
-        SmartDashboard.putNumber("encvalues1", encValues[0]);
-        SmartDashboard.putNumber("encvalue2", encValues[1]);
-        SmartDashboard.putNumber("joint1", joint1);
-        SmartDashboard.putNumber("joint2", joint2);
+    //     if(Math.abs(joint2-encValues[1])<ARM_MOE){
+    //         elbowRatio = 0;
+    //     }
+    //     SmartDashboard.putNumber("encvalues1", encValues[0]);
+    //     SmartDashboard.putNumber("encvalue2", encValues[1]);
+    //     SmartDashboard.putNumber("joint1", joint1);
+    //     SmartDashboard.putNumber("joint2", joint2);
 
-        armTal1.set(ControlMode.Position, shoulderRatio);
-        armTal2.set(ControlMode.Position, -elbowRatio);
-        tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
+    //     armTal1.set(ControlMode.Position, shoulderRatio);
+    //     armTal2.set(ControlMode.Position, -elbowRatio);
+    //     tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
 
-    }
+    // }
 }
