@@ -58,11 +58,11 @@ public class ArmControl implements Pronstants{
 
 
     public void controlArm(){
-            // if (getWantedState() == NO_THING){
+            if (getWantedState() == null){
                  manualArmControl();
-            // }else{
-            //     moveArm(getWantedState());
-            // }
+            }else{
+                 moveArm(getWantedState());
+            }
                 
 
             if(armController.getBumperPressed(Hand.kRight)){
@@ -176,4 +176,4 @@ public class ArmControl implements Pronstants{
         tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
 
     }
-}
+`}
