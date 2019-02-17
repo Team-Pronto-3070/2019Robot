@@ -20,7 +20,7 @@ public class ArmControl implements Pronstants{
     DoubleSolenoid succSol, tiltSol;
     Solenoid vacuumSol;
     Timer timer;
-    boolean canPressTilt = true, manual = true;
+    boolean sucking = false;
 
 
     public ArmControl(){
@@ -65,32 +65,24 @@ public class ArmControl implements Pronstants{
             // }
                 
 
-            tilt();  
+            if(armController.getBumperPressed(Hand.kRight)){
+                tiltSol.set(tiltSol.get() == Value.kReverse ? Value.kForward : Value.kReverse);
+            }  
             if(armController.getBackButtonPressed()){
                 armTal1.setSelectedSensorPosition(0);
                 armTal2.setSelectedSensorPosition(0);
             }
-            if(armController.getTriggerAxis(Hand.kRight) == 1){  //When right trigger is pressed, suction is on. When it isn't pressed it turns off
-                succSol.set(Value.kForward);
-                timer.start();
-                succAppointment();
-            } else {
-                succSol.set(Value.kReverse);
+            if(armController.getBumperPressed(Hand.kLeft)){
+                sucking = !sucking;
             }
+            if(sucking){  //When right trigger is pressed, suction is on. When it isn't pressed it turns off
+                suctionTimer();
+            }
+
             // succSol.set(armController.getTriggerAxis(Hand.kRight) == 1 ? Value.kReverse : Value.kForward);
     }
 
-    public void tilt(){
-        if(armController.getBumperPressed(Hand.kRight)){//if right bumper is pressed
-            if(canPressTilt){//if button press will tilt
-                //set it to the opposite value
-                tiltSol.set(tiltSol.get() == Value.kReverse ? Value.kForward : Value.kReverse);
-            }
-        canPressTilt = false;//button press will no longer tilt
-    }else{//right bumper isnt pressed 
-        canPressTilt = true;//button press is able to tilt
-    }
-        }  
+    
 
     public void manualArmControl(){
         if(Math.abs(armController.getY(GenericHID.Hand.kLeft)) > DEADZONE){ //if joystick is being used
@@ -122,66 +114,66 @@ public class ArmControl implements Pronstants{
         }else if(armController.getStartButtonPressed()){
            return RESET;
         }else{
-            
+            return null;
         }
     }
     
-    public void succAppointment(){
-        succSol.set(Value.kForward);
-        vacuumSol.set(true);
-
-        if(timer.hasPeriodPassed(1)){
-            succSol.set(Value.kReverse);
+    public void suctionTimer(){
+        if(timer.hasPeriodPassed(5)){
+            timer.reset();
+        }else if(timer.hasPeriodPassed(1)){
             vacuumSol.set(false);
-        }
-        if(timer.hasPeriodPassed(4)){
-            succSol.set(Value.kForward);
+            succSol.set(Value.kReverse);
+        }else{
             vacuumSol.set(true);
+            succSol.set(Value.kForward);
         }
     }
 
-    // public void moveArm(double[] encValues){
-
-    //     double joint1 = armTal1.getSelectedSensorPosition();
-    //     double joint2 = armTal2.getSelectedSensorPosition();
-    //     if(joint1==0){
-    //         joint1 = 1;
-    //     }
-    //     if(joint2==0){
-    //         joint2 = 1;
-    //     }
-    //                             //50        -   45  / 45
-    //     double shoulderRatio = 2*((encValues[0] - joint1) / joint1);
-    //     SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
-    //     if(shoulderRatio > 0){
-    //         shoulderRatio = 1;
-    //     } else if (shoulderRatio < 0){
-    //         shoulderRatio = -1;
-    //     }
-    //     if(Math.abs(joint1-encValues[0])<ARM_MOE){
-    //         shoulderRatio = 0;
-    //     }
 
 
-    //     double elbowRatio = 2*((encValues[1] - joint2) / joint2);
-    //     SmartDashboard.putNumber("elbowRatio", elbowRatio);
-    //     if(elbowRatio > 0){
-    //         elbowRatio = 1;
-    //     } else if (elbowRatio < 0){
-    //         elbowRatio = -1;
-    //     }
+    public void moveArm(double[] encValues){
+
+        double joint1 = armTal1.getSelectedSensorPosition();
+        double joint2 = armTal2.getSelectedSensorPosition();
+        if(joint1==0){
+            joint1 = 1;
+        }
+        if(joint2==0){
+            joint2 = 1;
+        }
+                                //50        -   45  / 45
+        double shoulderRatio = 2*((encValues[0] - joint1) / joint1);
+        SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
+        if(shoulderRatio > 0){
+            shoulderRatio = 1;
+        } else if (shoulderRatio < 0){
+            shoulderRatio = -1;
+        }
+        if(Math.abs(joint1-encValues[0])<ARM_MOE){
+            shoulderRatio = 0;
+        }
+
+
+        double elbowRatio = 2*((encValues[1] - joint2) / joint2);
+        SmartDashboard.putNumber("elbowRatio", elbowRatio);
+        if(elbowRatio > 0){
+            elbowRatio = 1;
+        } else if (elbowRatio < 0){
+            elbowRatio = -1;
+        }
         
-    //     if(Math.abs(joint2-encValues[1])<ARM_MOE){
-    //         elbowRatio = 0;
-    //     }
-    //     SmartDashboard.putNumber("encvalues1", encValues[0]);
-    //     SmartDashboard.putNumber("encvalue2", encValues[1]);
-    //     SmartDashboard.putNumber("joint1", joint1);
-    //     SmartDashboard.putNumber("joint2", joint2);
+        if(Math.abs(joint2-encValues[1])<ARM_MOE){
+            elbowRatio = 0;
+        }
+        SmartDashboard.putNumber("encvalues1", encValues[0]);
+        SmartDashboard.putNumber("encvalue2", encValues[1]);
+        SmartDashboard.putNumber("joint1", joint1);
+        SmartDashboard.putNumber("joint2", joint2);
 
-    //     armTal1.set(ControlMode.Position, shoulderRatio);
-    //     armTal2.set(ControlMode.Position, -elbowRatio);
-    //     tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
+        armTal1.set(ControlMode.Position, shoulderRatio);
+        armTal2.set(ControlMode.Position, -elbowRatio);
+        tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
 
-    // }
+    }
 }
