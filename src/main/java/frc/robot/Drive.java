@@ -69,18 +69,18 @@ public class Drive implements Pronstants {
     }
 
 
-    public void tankDrive(double joyL, double joyR) {
-        left = (left+joyL)/2;//averages the previous value and the current joystick value
-        right = (right+joyR)/2;
+    public void tankDrive() {
+        left = (left+joyL.getRawAxis(1))/2;//averages the previous value and the current joystick value
+        right = (right+joyR.getRawAxis(1))/2;
       
-        if(Math.abs(joyL) > DEADZONE){//doesn't drive if the joystick is close to zero but not zero
+        if(Math.abs(joyL.getRawAxis(1)) > DEADZONE){//doesn't drive if the joystick is close to zero but not zero
             leftDrive(left/3.0);//sets the motor to a value 3 times lower than it should be to be calmer
         }else{
             leftDrive(0); //If no input, stop left side
         }
 
      
-        if(Math.abs(joyR) > DEADZONE){//Same as left, but right
+        if(Math.abs(joyR.getRawAxis(1)) > DEADZONE){//Same as left, but right
             rightDrive(right/3.0);
 
         }else{
