@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID;
 import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -32,21 +33,11 @@ public class ArmControl implements Pronstants {
 
         timer = new Timer();
 
-        shoulderTal.configFactoryDefault();
-        shoulderTal.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
-        shoulderTal.setInverted(false);
-        shoulderTal.configNominalOutputForward(0, kTimeoutMs);
-        shoulderTal.configNominalOutputReverse(0, kTimeoutMs);
-        shoulderTal.configPeakOutputForward(1, kTimeoutMs);
-        shoulderTal.configPeakOutputReverse(-1, kTimeoutMs);
+        configTal(false, shoulderTal);
+        configTal(true, elbowTal);
 
-        elbowTal.configFactoryDefault();
-        elbowTal.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
-        elbowTal.setInverted(true);
-        elbowTal.configNominalOutputForward(0, kTimeoutMs);
-        elbowTal.configNominalOutputReverse(0, kTimeoutMs);
-        elbowTal.configPeakOutputForward(1, kTimeoutMs);
-        elbowTal.configPeakOutputReverse(-1, kTimeoutMs);
+        tuneTalon(shoulderTal, 0.2481, 0, 0, 0);
+        tuneTalon(elbowTal, 0.2481, 0, 0, 0);
     }
 
     /**
@@ -64,8 +55,8 @@ public class ArmControl implements Pronstants {
         if (getWantedState() == null) {
             manualArmControl();
         } else {
-            shoulderTal.set(ControlMode.Position, getWantedState()[0]);
-            elbowTal.set(ControlMode.Position, getWantedState()[1]);
+            shoulderTal.set(ControlMode.MotionMagic, getWantedState()[0]);
+            elbowTal.set(ControlMode.MotionMagic, getWantedState()[1]);
         }
 
         if (armController.getBumperPressed(Hand.kRight)) {
@@ -84,7 +75,8 @@ public class ArmControl implements Pronstants {
     }
 
     /**
-     * takes in the joystick values from both of the xbox joysticks and moves the corresponding talons
+     * takes in the joystick values from both of the xbox joysticks and moves the
+     * corresponding talons
      */
     public void manualArmControl() {
         if (Math.abs(armController.getY(GenericHID.Hand.kLeft)) > DEADZONE) { // if joystick is being used
@@ -100,13 +92,14 @@ public class ArmControl implements Pronstants {
     }
 
     /**
-     * returns the action of the arm based off of the button pressed 
+     * returns the action of the arm based off of the button pressed
+     * 
      * @return returns null if no buttons are pressed
      */
     public double[] getWantedState() {
-        if (armController.getAButtonPressed()) {
+        if (armController.getAButton()) {
             return PREPARE_HATCH_GROUND;
-        } else if (armController.getXButtonPressed()) {
+        } else if (armController.getXButton()) {
             return PREPARE_BALL_GROUND;
         } else if (armController.getPOV() == 0) {
             return FIRST_LEVEL_HATCH;
@@ -116,7 +109,7 @@ public class ArmControl implements Pronstants {
             return FIRST_LEVEL_BALL;
         } else if (armController.getPOV() == 90) {
             return SECOND_LEVEL_BALL;
-        } else if (armController.getStartButtonPressed()) {
+        } else if (armController.getStartButton()) {
             return RESET;
         } else {
             return null;
@@ -138,51 +131,75 @@ public class ArmControl implements Pronstants {
         }
     }
 
+    public void configTal(boolean inverted, TalonSRX talon) {
+        talon.configFactoryDefault();
+        talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
+        talon.setInverted(inverted);
+        talon.configNominalOutputForward(0, PID_TIMEOUT);
+        talon.configNominalOutputReverse(0, PID_TIMEOUT);
+        talon.configPeakOutputForward(1, PID_TIMEOUT);
+        talon.configPeakOutputReverse(-1, PID_TIMEOUT);
+        talon.selectProfileSlot(PID_SLOT_IDX, PID_LOOP_IDX);
+        talon.configMotionCruiseVelocity(3092, PID_TIMEOUT);
+        talon.configMotionAcceleration(3092, PID_TIMEOUT);
+    }
+
+    public void tuneTalon(TalonSRX talon, double f, double p, double i, double d) {
+        talon.config_kF(PID_SLOT_IDX, f, PID_TIMEOUT);
+        talon.config_kP(PID_SLOT_IDX, p, PID_TIMEOUT);
+        talon.config_kI(PID_SLOT_IDX, i, PID_TIMEOUT);
+        talon.config_kD(PID_SLOT_IDX, d, PID_TIMEOUT);
+    }
+
+   
+
     /**
      * Moves arm to specified encoder values
-     * @param encValues encValue[0] = shoulder joint, encValue[1] = elbow joint, encValue[2] = wrist state (0 or 1)
+     * 
+     * @param encValues encValue[0] = shoulder joint, encValue[1] = elbow joint,
+     *                  encValue[2] = wrist state (0 or 1)
      */
     // public void moveArm(double[] encValues) {
 
-    //     double joint1 = shoulderTal.getSelectedSensorPosition();
-    //     double joint2 = elbowTal.getSelectedSensorPosition();
-    //     if (joint1 == 0) {
-    //         joint1 = 1;
-    //     }
-    //     if (joint2 == 0) {
-    //         joint2 = 1;
-    //     }
-    //     // 50 - 45 / 45
-    //     double shoulderRatio = 2 * ((encValues[0] - joint1) / joint1);
-    //     SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
-    //     if (shoulderRatio > 0) {
-    //         shoulderRatio = 1;
-    //     } else if (shoulderRatio < 0) {
-    //         shoulderRatio = -1;
-    //     }
-    //     if (Math.abs(joint1 - encValues[0]) < ARM_MOE) {
-    //         shoulderRatio = 0;
-    //     }
+    // double joint1 = shoulderTal.getSelectedSensorPosition();
+    // double joint2 = elbowTal.getSelectedSensorPosition();
+    // if (joint1 == 0) {
+    // joint1 = 1;
+    // }
+    // if (joint2 == 0) {
+    // joint2 = 1;
+    // }
+    // // 50 - 45 / 45
+    // double shoulderRatio = 2 * ((encValues[0] - joint1) / joint1);
+    // SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
+    // if (shoulderRatio > 0) {
+    // shoulderRatio = 1;
+    // } else if (shoulderRatio < 0) {
+    // shoulderRatio = -1;
+    // }
+    // if (Math.abs(joint1 - encValues[0]) < ARM_MOE) {
+    // shoulderRatio = 0;
+    // }
 
-    //     double elbowRatio = 2 * ((encValues[1] - joint2) / joint2);
-    //     SmartDashboard.putNumber("elbowRatio", elbowRatio);
-    //     if (elbowRatio > 0) {
-    //         elbowRatio = 1;
-    //     } else if (elbowRatio < 0) {
-    //         elbowRatio = -1;
-    //     }
+    // double elbowRatio = 2 * ((encValues[1] - joint2) / joint2);
+    // SmartDashboard.putNumber("elbowRatio", elbowRatio);
+    // if (elbowRatio > 0) {
+    // elbowRatio = 1;
+    // } else if (elbowRatio < 0) {
+    // elbowRatio = -1;
+    // }
 
-    //     if (Math.abs(joint2 - encValues[1]) < ARM_MOE) {
-    //         elbowRatio = 0;
-    //     }
-    //     SmartDashboard.putNumber("encvalues1", encValues[0]);
-    //     SmartDashboard.putNumber("encvalue2", encValues[1]);
-    //     SmartDashboard.putNumber("joint1", joint1);
-    //     SmartDashboard.putNumber("joint2", joint2);
+    // if (Math.abs(joint2 - encValues[1]) < ARM_MOE) {
+    // elbowRatio = 0;
+    // }
+    // SmartDashboard.putNumber("encvalues1", encValues[0]);
+    // SmartDashboard.putNumber("encvalue2", encValues[1]);
+    // SmartDashboard.putNumber("joint1", joint1);
+    // SmartDashboard.putNumber("joint2", joint2);
 
-    //     shoulderTal.set(ControlMode.Position, shoulderRatio);
-    //     elbowTal.set(ControlMode.Position, -elbowRatio);
-    //     tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
+    // shoulderTal.set(ControlMode.Position, shoulderRatio);
+    // elbowTal.set(ControlMode.Position, -elbowRatio);
+    // tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
 
     // }
 }

@@ -48,6 +48,8 @@ public class Robot extends TimedRobot implements Pronstants {
   boolean compGo = true;
   double[] position = { 0, 0, 0 };
 
+  double eF, eP, eI, eD, sF, sP, sI, sD;
+
   Drive drive;
   // LineSense lineSense;
 
@@ -143,12 +145,25 @@ public class Robot extends TimedRobot implements Pronstants {
                                                                       // how it started
     SmartDashboard.putNumber("pressure", (pressure.getVoltage() - VOLTS_OFFSET) * VOLT_PSI_RATIO);
     SmartDashboard.putNumber("joy value", arm.armController.getY(GenericHID.Hand.kRight));
+
+    SmartDashboard.putBoolean("sucking", arm.sucking);
+    SmartDashboard.putNumber("suck time", arm.timer.get());
   }
 
   public void teleopInit() {
     SmartDashboard.putNumber("tal1", 0);
     SmartDashboard.putNumber("tal2", 0);
     SmartDashboard.putNumber("eh", 0);
+    
+    SmartDashboard.putNumber("sF", 0.2481);
+    SmartDashboard.putNumber("sP", 0);
+    SmartDashboard.putNumber("sI", 0);
+    SmartDashboard.putNumber("sD", 0);
+
+    SmartDashboard.putNumber("eF", 0.2481);
+    SmartDashboard.putNumber("eP", 0);
+    SmartDashboard.putNumber("eI", 0);
+    SmartDashboard.putNumber("eD", 0);
   }
 
   /**
@@ -176,6 +191,17 @@ public class Robot extends TimedRobot implements Pronstants {
     position[0] = SmartDashboard.getNumber("tal1", 0.0);
     position[1] = SmartDashboard.getNumber("tal2", 0.0);
     position[2] = SmartDashboard.getNumber("eh", 0.0);
+
+    eF = SmartDashboard.getNumber("eF", 0.2481);
+    eP = SmartDashboard.getNumber("eP", 0);
+    eI = SmartDashboard.getNumber("eI", 0);
+    eD = SmartDashboard.getNumber("eD", 0);
+    sF = SmartDashboard.getNumber("sF", 0.2481);
+    sP = SmartDashboard.getNumber("sP", 0);
+    sI = SmartDashboard.getNumber("sI", 0);
+    sD = SmartDashboard.getNumber("sD", 0);
+    arm.tuneTalon(arm.shoulderTal, eF, eP, eI, eD);
+    arm.tuneTalon(arm.elbowTal, sF, sP, sI, sD);
   }
 
   /**

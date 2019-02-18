@@ -50,8 +50,10 @@ public interface Pronstants {
 
     public static final double DRIVE_SCALER = .3;
 
-    public static final int kSlotIdx = 0;
-    public static final int kPIDLoopIdx = 0;
-    public static final int kTimeoutMs = 30;
+    public static final int PID_SLOT_IDX = 0;
+    public static final int PID_LOOP_IDX = 0;
+    public static final int PID_TIMEOUT = 30;
 
+    public static final double VOLTS_OFFSET = .5;
+    public static final double VOLT_PSI_RATIO = 50;
 }
