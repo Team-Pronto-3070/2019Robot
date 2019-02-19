@@ -20,6 +20,7 @@ public class ArmControl implements Pronstants {
     Solenoid vacuumSol;
     Timer timer;
     boolean sucking = false;
+    boolean vacuum = true;
 
     public ArmControl() {
         armController = new XboxController(ARMCONT_PORT);
@@ -57,6 +58,7 @@ public class ArmControl implements Pronstants {
         } else {
             shoulderTal.set(ControlMode.MotionMagic, getWantedState()[0]);
             elbowTal.set(ControlMode.MotionMagic, getWantedState()[1]);
+            // tiltSol.set()
         }
 
         if (armController.getBumperPressed(Hand.kRight)) {
@@ -68,10 +70,24 @@ public class ArmControl implements Pronstants {
         }
         if (armController.getBumperPressed(Hand.kLeft)) {
             sucking = !sucking;
+            if (sucking) {
+                timer.start();
+                succSol.set(Value.kForward);
+            } else {
+                timer.stop();
+                timer.reset();
+            }
+            // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
+            // Value.kReverse);
+        }
+        if (armController.getYButtonPressed()) {
+            vacuum = !vacuum;
+            vacuumSol.set(vacuum);
         }
         if (sucking) { // When right trigger is pressed, suction is on. When it isn't pressed it turns
-            suctionTimer();
+            vacuumThing();
         }
+
     }
 
     /**
@@ -119,16 +135,8 @@ public class ArmControl implements Pronstants {
     /**
      * sets up a timer for vacuum-hold solenoid
      */
-    public void suctionTimer() {
-        if (timer.hasPeriodPassed(5)) {
-            timer.reset();
-        } else if (timer.hasPeriodPassed(1)) {
-            vacuumSol.set(false);
-            succSol.set(Value.kReverse);
-        } else {
-            vacuumSol.set(true);
-            succSol.set(Value.kForward);
-        }
+    public void vacuumThing() {
+        
     }
 
     public void configTal(boolean inverted, TalonSRX talon) {
@@ -150,8 +158,6 @@ public class ArmControl implements Pronstants {
         talon.config_kI(PID_SLOT_IDX, i, PID_TIMEOUT);
         talon.config_kD(PID_SLOT_IDX, d, PID_TIMEOUT);
     }
-
-   
 
     /**
      * Moves arm to specified encoder values

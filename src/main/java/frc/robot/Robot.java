@@ -7,6 +7,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -39,10 +41,6 @@ import edu.wpi.first.cameraserver.CameraServer;
  */
 public class Robot extends TimedRobot implements Pronstants {
   public static final ADIS16448_IMU imu = new ADIS16448_IMU();
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   boolean canPressComp = true;
   boolean compGo = true;
@@ -78,7 +76,7 @@ public class Robot extends TimedRobot implements Pronstants {
     comp = new Compressor(0);
     // lightSensor = new DigitalInput(0);
     comp.start();
-    arm.succSol.set(Value.kReverse);
+    arm.succSol.set(Value.kForward);
 
     gyroYawEntry = Shuffleboard.getTab("Gyro").add("Gyro Yaw", new Double(1)).withWidget(BuiltInWidgets.kDial)
         .withProperties(Map.of("min", -180, "max", 180)).getEntry();
@@ -90,7 +88,7 @@ public class Robot extends TimedRobot implements Pronstants {
     // Set the resolution
     front.setResolution(320, 240);
     back.setResolution(320, 240);
-    front.setExposureManual(10);
+    front.setExposureManual(80);
     back.setExposureManual(90);
     // Get a CvSink. This will capture Mats from the camera
     CvSink cvSink = CameraServer.getInstance().getVideo();
@@ -126,11 +124,11 @@ public class Robot extends TimedRobot implements Pronstants {
     // SmartDashboard.putNumber("BL talon current",
     // drive.talonBL.getOutputCurrent());
 
-    SmartDashboard.putNumber("Bottom joing talon current", arm.shoulderTal.getOutputCurrent());
-    SmartDashboard.putNumber("Top joint talon current", arm.elbowTal.getOutputCurrent());
+    SmartDashboard.putNumber("Shoulder talon current", arm.shoulderTal.getOutputCurrent());
+    SmartDashboard.putNumber("Elbow talon current", arm.elbowTal.getOutputCurrent());
 
-    SmartDashboard.putNumber("Arm Encoder 1", arm.shoulderTal.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Arm Encoder 2", arm.elbowTal.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Shoulder Encoder", arm.shoulderTal.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Elbow Encoder", arm.elbowTal.getSelectedSensorPosition());
 
     // SmartDashboard.putBoolean("light", lightSensor.get());//used for testing if
     // the light sensor is detecting light or not
@@ -148,6 +146,10 @@ public class Robot extends TimedRobot implements Pronstants {
 
     SmartDashboard.putBoolean("sucking", arm.sucking);
     SmartDashboard.putNumber("suck time", arm.timer.get());
+
+    SmartDashboard.putBoolean("vacuum", arm.vacuum);
+    SmartDashboard.putBoolean("succ", arm.succSol.get()==Value.kForward);
+
   }
 
   public void teleopInit() {
@@ -174,7 +176,7 @@ public class Robot extends TimedRobot implements Pronstants {
     arm.controlArm(); // Arm control method
     drive.tankDrive(); // Takes joystick inputs, curves inputs
     // and sets motors to curved amount
-    if (joyL.getRawButton(8)) {// if right bumper is pressed
+    if (arm.armController.getTriggerAxis(Hand.kRight)==1) {// if right bumper is pressed
       if (canPressComp) {// if button press will tilt
         // set it to the opposite value
         compGo = !compGo;
@@ -202,6 +204,8 @@ public class Robot extends TimedRobot implements Pronstants {
     sD = SmartDashboard.getNumber("sD", 0);
     arm.tuneTalon(arm.shoulderTal, eF, eP, eI, eD);
     arm.tuneTalon(arm.elbowTal, sF, sP, sI, sD);
+    arm.armController.setRumble(RumbleType.kLeftRumble, 0);
+    //arm.armController.setRumble(RumbleType.kLeftRumble, SmartDashboard.getNumber("pressure", 100)/100);
   }
 
   /**
