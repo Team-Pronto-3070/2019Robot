@@ -107,6 +107,18 @@ public class ArmControl implements Pronstants {
         }
     }
 
+    public void suctionTimer() {
+        if (timer.hasPeriodPassed(5)) {
+            timer.reset();
+        } else if (timer.hasPeriodPassed(1)) {
+            vacuumSol.set(false);
+            succSol.set(Value.kReverse);
+        } else {
+            vacuumSol.set(true);
+            succSol.set(Value.kForward);
+        }
+    }
+
     /**
      * returns the action of the arm based off of the button pressed
      * 
