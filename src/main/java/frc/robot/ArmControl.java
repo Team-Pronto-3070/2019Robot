@@ -108,16 +108,20 @@ public class ArmControl implements Pronstants {
     }
 
     public void suctionTimer() {
-        if (timer.hasPeriodPassed(5)) {
+        if (timer.get() > 2) {
             timer.reset();
-        } else if (timer.hasPeriodPassed(1)) {
+        } else if (timer.get() > 3) {
             vacuumSol.set(false);
-            succSol.set(Value.kReverse);
+            if(timer.get() > 3.1){
+                succSol.set(Value.kReverse);
+            }
         } else {
             vacuumSol.set(true);
-            succSol.set(Value.kForward);
+            if(timer.get() > 4){
+                succSol.set(Value.kForward);
+            }
         }
-    }
+    
 
     /**
      * returns the action of the arm based off of the button pressed
@@ -144,7 +148,7 @@ public class ArmControl implements Pronstants {
         }
     }
 
-    /**
+
      * sets up a timer for vacuum-hold solenoid
      */
     public void vacuumThing() {
