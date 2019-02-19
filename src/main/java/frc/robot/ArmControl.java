@@ -192,7 +192,7 @@ public class ArmControl implements Pronstants {
         if (joint2 == 0) {
             joint2 = 1;
         }
-        double shoulderRatio = .1 + ((encValues[0] - joint1) / joint1);
+        double shoulderRatio = .15 + ((encValues[0] - joint1) / joint1);
         SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
         if (shoulderRatio >= 1) {
             shoulderRatio = 1;
@@ -203,7 +203,7 @@ public class ArmControl implements Pronstants {
             shoulderRatio = 0;
         }
 
-        double elbowRatio = .1 + ((encValues[1] - joint2) / joint2);
+        double elbowRatio = .15 + ((encValues[1] - joint2) / joint2);
         SmartDashboard.putNumber("elbowRatio", elbowRatio);
         if (elbowRatio >= 1) {
             elbowRatio = 1;
