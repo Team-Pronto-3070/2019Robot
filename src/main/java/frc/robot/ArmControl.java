@@ -75,7 +75,6 @@ public class ArmControl implements Pronstants {
             } else {
                 timer.stop();
                 timer.reset();
-                
                 succSol.set(Value.kForward);
             }
             // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
@@ -109,16 +108,16 @@ public class ArmControl implements Pronstants {
     }
 
     public void suctionTimer() {
-        if (timer.get() > 2) {
+        if (timer.get() > 1) {
             timer.reset();
-        } else if (timer.get() > 3) {
+        } else if (timer.get() > 0.25) {
             vacuumSol.set(false);
-            if(timer.get() > 3.1){
+            if(timer.get() > 0.30){
                 succSol.set(Value.kReverse);
             }
         } else {
             vacuumSol.set(true);
-            if(timer.get() > 4){
+            if(timer.get() > 0.05){
                 succSol.set(Value.kForward);
             }
         }

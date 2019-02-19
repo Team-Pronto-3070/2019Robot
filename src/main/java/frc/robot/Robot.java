@@ -44,9 +44,7 @@ public class Robot extends TimedRobot implements Pronstants {
 
   boolean canPressComp = true;
   boolean compGo = true;
-  double[] position = { 0, 0, 0 };
 
-  double eF, eP, eI, eD, sF, sP, sI, sD;
 
   Drive drive;
   // LineSense lineSense;
@@ -78,9 +76,6 @@ public class Robot extends TimedRobot implements Pronstants {
     comp.start();
     arm.succSol.set(Value.kForward);
 
-    gyroYawEntry = Shuffleboard.getTab("Gyro").add("Gyro Yaw", new Double(1)).withWidget(BuiltInWidgets.kDial)
-        .withProperties(Map.of("min", -180, "max", 180)).getEntry();
-
     // Get the UsbCamera from CameraServer
 
     UsbCamera front = CameraServer.getInstance().startAutomaticCapture("Front Camera", 0);
@@ -89,7 +84,7 @@ public class Robot extends TimedRobot implements Pronstants {
     front.setResolution(320, 240);
     back.setResolution(320, 240);
     front.setExposureManual(80);
-    back.setExposureManual(90);
+    back.setExposureManual(80);
     // Get a CvSink. This will capture Mats from the camera
     CvSink cvSink = CameraServer.getInstance().getVideo();
     // Setup a CvSource. This will send images back to the Dashboard
@@ -153,19 +148,6 @@ public class Robot extends TimedRobot implements Pronstants {
   }
 
   public void teleopInit() {
-    SmartDashboard.putNumber("tal1", 0);
-    SmartDashboard.putNumber("tal2", 0);
-    SmartDashboard.putNumber("eh", 0);
-
-    SmartDashboard.putNumber("sF", 0.2481);
-    SmartDashboard.putNumber("sP", 0);
-    SmartDashboard.putNumber("sI", 0);
-    SmartDashboard.putNumber("sD", 0);
-
-    SmartDashboard.putNumber("eF", 0.2481);
-    SmartDashboard.putNumber("eP", 0);
-    SmartDashboard.putNumber("eI", 0);
-    SmartDashboard.putNumber("eD", 0);
   }
 
   /**
@@ -173,12 +155,7 @@ public class Robot extends TimedRobot implements Pronstants {
    */
   @Override
   public void teleopPeriodic() {
-    if(arm.armController.getAButton()){
-      arm.shoulderTal.set(ControlMode.MotionMagic, position[0]);
-      arm.elbowTal.set(ControlMode.MotionMagic, position[1]);
-    }else{
-      arm.manualArmControl();
-    }
+    arm.controlArm();
     drive.tankDrive(); // Takes joystick inputs, curves inputs
     // and sets motors to curved amount
 
@@ -197,23 +174,6 @@ public class Robot extends TimedRobot implements Pronstants {
     } else {// right bumper isnt pressed
       canPressComp = true;// button press is able to tilt
     }
-    position[0] = SmartDashboard.getNumber("tal1", 0.0);
-    position[1] = SmartDashboard.getNumber("tal2", 0.0);
-    position[2] = SmartDashboard.getNumber("eh", 0.0);
-
-    eF = SmartDashboard.getNumber("eF", 0.2481);
-    eP = SmartDashboard.getNumber("eP", 0);
-    eI = SmartDashboard.getNumber("eI", 0);
-    eD = SmartDashboard.getNumber("eD", 0);
-    sF = SmartDashboard.getNumber("sF", 0.2481);
-    sP = SmartDashboard.getNumber("sP", 0);
-    sI = SmartDashboard.getNumber("sI", 0);
-    sD = SmartDashboard.getNumber("sD", 0);
-    arm.tuneTalon(arm.shoulderTal, eF, eP, eI, eD);
-    arm.tuneTalon(arm.elbowTal, sF, sP, sI, sD);
-    arm.armController.setRumble(RumbleType.kLeftRumble, 0);
-    // arm.armController.setRumble(RumbleType.kLeftRumble,
-    // SmartDashboard.getNumber("pressure", 100)/100);
   }
 
   /**
