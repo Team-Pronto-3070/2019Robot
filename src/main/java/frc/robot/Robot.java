@@ -148,7 +148,7 @@ public class Robot extends TimedRobot implements Pronstants {
     SmartDashboard.putNumber("suck time", arm.timer.get());
 
     SmartDashboard.putBoolean("vacuum", arm.vacuum);
-    SmartDashboard.putBoolean("succ", arm.succSol.get()==Value.kForward);
+    SmartDashboard.putBoolean("succ", arm.succSol.get() == Value.kReverse);
 
   }
 
@@ -156,7 +156,7 @@ public class Robot extends TimedRobot implements Pronstants {
     SmartDashboard.putNumber("tal1", 0);
     SmartDashboard.putNumber("tal2", 0);
     SmartDashboard.putNumber("eh", 0);
-    
+
     SmartDashboard.putNumber("sF", 0.2481);
     SmartDashboard.putNumber("sP", 0);
     SmartDashboard.putNumber("sI", 0);
@@ -173,10 +173,17 @@ public class Robot extends TimedRobot implements Pronstants {
    */
   @Override
   public void teleopPeriodic() {
-    arm.controlArm(); // Arm control method
+    if(arm.armController.getAButton()){
+      arm.shoulderTal.set(ControlMode.MotionMagic, position[0]);
+      arm.elbowTal.set(ControlMode.MotionMagic, position[1]);
+    }else{
+      arm.manualArmControl();
+    }
     drive.tankDrive(); // Takes joystick inputs, curves inputs
     // and sets motors to curved amount
-    if (arm.armController.getTriggerAxis(Hand.kRight)==1) {// if right bumper is pressed
+
+
+    if (arm.armController.getTriggerAxis(Hand.kRight) == 1) {// if right bumper is pressed
       if (canPressComp) {// if button press will tilt
         // set it to the opposite value
         compGo = !compGo;
@@ -205,7 +212,8 @@ public class Robot extends TimedRobot implements Pronstants {
     arm.tuneTalon(arm.shoulderTal, eF, eP, eI, eD);
     arm.tuneTalon(arm.elbowTal, sF, sP, sI, sD);
     arm.armController.setRumble(RumbleType.kLeftRumble, 0);
-    //arm.armController.setRumble(RumbleType.kLeftRumble, SmartDashboard.getNumber("pressure", 100)/100);
+    // arm.armController.setRumble(RumbleType.kLeftRumble,
+    // SmartDashboard.getNumber("pressure", 100)/100);
   }
 
   /**

@@ -72,10 +72,11 @@ public class ArmControl implements Pronstants {
             sucking = !sucking;
             if (sucking) {
                 timer.start();
-                succSol.set(Value.kForward);
             } else {
                 timer.stop();
                 timer.reset();
+                
+                succSol.set(Value.kForward);
             }
             // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
             // Value.kReverse);
@@ -85,8 +86,8 @@ public class ArmControl implements Pronstants {
             vacuumSol.set(vacuum);
         }
         if (sucking) { // When right trigger is pressed, suction is on. When it isn't pressed it turns
-            vacuumThing();
-        }
+            suctionTimer();       
+         }
 
     }
 
@@ -121,7 +122,7 @@ public class ArmControl implements Pronstants {
                 succSol.set(Value.kForward);
             }
         }
-    
+    }
 
     /**
      * returns the action of the arm based off of the button pressed
@@ -148,7 +149,7 @@ public class ArmControl implements Pronstants {
         }
     }
 
-
+    /** 
      * sets up a timer for vacuum-hold solenoid
      */
     public void vacuumThing() {
