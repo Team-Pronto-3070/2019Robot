@@ -46,7 +46,7 @@ public interface Pronstants {
     //11 inches from bottom of frame to the top corner of the elbow encoder bracket
     public static final double[] RESET = {0,0,0};
 
-    public static final double ARM_MOE = 30; //Margin of error for arm angles, in degrees
+    public static final double ARM_MOE = 10; //Margin of error for arm angles, in encoder ticks
 
     public static final double DRIVE_SCALER = .3;
 

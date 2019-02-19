@@ -75,7 +75,7 @@ public class ArmControl implements Pronstants {
             } else {
                 timer.stop();
                 timer.reset();
-                
+
                 succSol.set(Value.kForward);
             }
             // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
@@ -86,8 +86,8 @@ public class ArmControl implements Pronstants {
             vacuumSol.set(vacuum);
         }
         if (sucking) { // When right trigger is pressed, suction is on. When it isn't pressed it turns
-            suctionTimer();       
-         }
+            suctionTimer();
+        }
 
     }
 
@@ -113,12 +113,12 @@ public class ArmControl implements Pronstants {
             timer.reset();
         } else if (timer.get() > 3) {
             vacuumSol.set(false);
-            if(timer.get() > 3.1){
+            if (timer.get() > 3.1) {
                 succSol.set(Value.kReverse);
             }
         } else {
             vacuumSol.set(true);
-            if(timer.get() > 4){
+            if (timer.get() > 4) {
                 succSol.set(Value.kForward);
             }
         }
@@ -149,11 +149,11 @@ public class ArmControl implements Pronstants {
         }
     }
 
-    /** 
+    /**
      * sets up a timer for vacuum-hold solenoid
      */
     public void vacuumThing() {
-        
+
     }
 
     public void configTal(boolean inverted, TalonSRX talon) {
@@ -182,47 +182,46 @@ public class ArmControl implements Pronstants {
      * @param encValues encValue[0] = shoulder joint, encValue[1] = elbow joint,
      *                  encValue[2] = wrist state (0 or 1)
      */
-    // public void moveArm(double[] encValues) {
+    public void moveArm(double[] encValues) {
 
-    // double joint1 = shoulderTal.getSelectedSensorPosition();
-    // double joint2 = elbowTal.getSelectedSensorPosition();
-    // if (joint1 == 0) {
-    // joint1 = 1;
-    // }
-    // if (joint2 == 0) {
-    // joint2 = 1;
-    // }
-    // // 50 - 45 / 45
-    // double shoulderRatio = 2 * ((encValues[0] - joint1) / joint1);
-    // SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
-    // if (shoulderRatio > 0) {
-    // shoulderRatio = 1;
-    // } else if (shoulderRatio < 0) {
-    // shoulderRatio = -1;
-    // }
-    // if (Math.abs(joint1 - encValues[0]) < ARM_MOE) {
-    // shoulderRatio = 0;
-    // }
+        double joint1 = shoulderTal.getSelectedSensorPosition();
+        double joint2 = elbowTal.getSelectedSensorPosition();
+        if (joint1 == 0) {
+            joint1 = 1;
+        }
+        if (joint2 == 0) {
+            joint2 = 1;
+        }
+        double shoulderRatio = .1 + ((encValues[0] - joint1) / joint1);
+        SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
+        if (shoulderRatio >= 1) {
+            shoulderRatio = 1;
+        } else if (shoulderRatio <= -1) {
+            shoulderRatio = -1;
+        }
+        if (Math.abs(joint1 - encValues[0]) < ARM_MOE) {
+            shoulderRatio = 0;
+        }
 
-    // double elbowRatio = 2 * ((encValues[1] - joint2) / joint2);
-    // SmartDashboard.putNumber("elbowRatio", elbowRatio);
-    // if (elbowRatio > 0) {
-    // elbowRatio = 1;
-    // } else if (elbowRatio < 0) {
-    // elbowRatio = -1;
-    // }
+        double elbowRatio = .1 + ((encValues[1] - joint2) / joint2);
+        SmartDashboard.putNumber("elbowRatio", elbowRatio);
+        if (elbowRatio >= 1) {
+            elbowRatio = 1;
+        } else if (elbowRatio <= -1) {
+            elbowRatio = -1;
+        }
 
-    // if (Math.abs(joint2 - encValues[1]) < ARM_MOE) {
-    // elbowRatio = 0;
-    // }
-    // SmartDashboard.putNumber("encvalues1", encValues[0]);
-    // SmartDashboard.putNumber("encvalue2", encValues[1]);
-    // SmartDashboard.putNumber("joint1", joint1);
-    // SmartDashboard.putNumber("joint2", joint2);
+        if (Math.abs(joint2 - encValues[1]) < ARM_MOE) {
+            elbowRatio = 0;
+        }
+        SmartDashboard.putNumber("encvalues1", encValues[0]);
+        SmartDashboard.putNumber("encvalue2", encValues[1]);
+        SmartDashboard.putNumber("joint1", joint1);
+        SmartDashboard.putNumber("joint2", joint2);
 
-    // shoulderTal.set(ControlMode.Position, shoulderRatio);
-    // elbowTal.set(ControlMode.Position, -elbowRatio);
-    // tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
+        shoulderTal.set(ControlMode.Position, shoulderRatio);
+        elbowTal.set(ControlMode.Position, -elbowRatio);
+        tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
 
-    // }
+    }
 }
