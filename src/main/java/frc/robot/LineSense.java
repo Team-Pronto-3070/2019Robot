@@ -12,17 +12,11 @@
     ADIS16448_IMU imu;
 
     public LineSense(Drive drive, ADIS16448_IMU imu) {
-        
         lineSensorL = new DigitalInput(LINE_PORT_1);
         lineSensorR = new DigitalInput(LINE_PORT_2);
-
-
     }
 
-
-    public void LineSense( double angle) {    
-       
-
+    public void LineSense(double angle) {    
         if(!lineSensorL.get()){
             drive.leftDrive(-.5);
             drive.rightDrive(-.4);
@@ -33,12 +27,10 @@
         }
         if(lineSensorL.get() && lineSensorR.get()){
             drive.driveToAngle(angle);
-            linedUp = true;
+            if(Math.abs(drive.getAngle() - angle) >= 0){
+                linedUp = true;
+                drive.stop();
+            }
         }
-        if(linedUp){
-
-        }
-
     }
-
 }

@@ -1,80 +1,223 @@
 package frc.robot;
 
+//imports
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID;
 import com.ctre.phoenix.motorcontrol.*;
-import edu.wpi.first.wpilibj.Encoder;
-
 import edu.wpi.first.wpilibj.Solenoid;
-
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import edu.wpi.first.wpilibj.Timer;
 
-
-
-public class ArmControl implements Pronstants{
-
+public class ArmControl implements Pronstants {
     XboxController armController;
-    TalonSRX armTal1, armTal2;
-    Solenoid handSol, tiltSol;
-    boolean toggle = true;
+    TalonSRX shoulderTal, elbowTal;
+    DoubleSolenoid succSol, tiltSol;
+    Solenoid vacuumSol;
+    Timer timer;
+    boolean sucking = false;
+    boolean vacuum = true;
 
-    public ArmControl(){
+    public ArmControl() {
         armController = new XboxController(ARMCONT_PORT);
 
+        shoulderTal = new TalonSRX(SHOULDER_TAL_PORT); // Talon for shoulder joint
+        elbowTal = new TalonSRX(ELBOW_TAL_PORT); // Talon for elbow joint
 
-        armTal1 = new TalonSRX(ARMTAL1_PORT); //Talon for shoulder joint
-        armTal2 = new TalonSRX(ARMTAL2_PORT); //Talon for elbow joint 
+        succSol = new DoubleSolenoid(SUCCSOL_PORT1, SUCCSOL_PORT2);
+        tiltSol = new DoubleSolenoid(TILTSOL_PORT1, TILTSOL_PORT2);
+        vacuumSol = new Solenoid(VACUSOL_PORT);
 
-        handSol = new Solenoid(HANDSOL_PORT);
-        tiltSol = new Solenoid(TILTSOL_PORT);
-        
+        timer = new Timer();
 
-        armTal1.configFactoryDefault();
-        armTal2.configFactoryDefault();
+        configTal(false, shoulderTal);
+        configTal(true, elbowTal);
 
-        armTal1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
-        armTal2.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
-
+        tuneTalon(shoulderTal, 0.2481, 0, 0, 0);
+        tuneTalon(elbowTal, 0.2481, 0, 0, 0);
     }
 
-    public void stop(){
-        armTal1.set(ControlMode.PercentOutput, 0);
-        armTal2.set(ControlMode.PercentOutput, 0);
+    /**
+     * Stops the arm
+     */
+    public void stop() {
+        shoulderTal.set(ControlMode.PercentOutput, 0);
+        elbowTal.set(ControlMode.PercentOutput, 0);
     }
 
-    public void radialNerve(){
-        if(armController.getY(GenericHID.Hand.kLeft) > DEADZONE){ //If joystick is being used
-            armTal1.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
+    /**
+     * Combines all the arm methods into one easy to use method
+     */
+    public void controlArm() {
+        if (getWantedState() == null) {
+            manualArmControl();
         } else {
-            armTal1.set(ControlMode.PercentOutput, 0);
+            shoulderTal.set(ControlMode.MotionMagic, getWantedState()[0]);
+            elbowTal.set(ControlMode.MotionMagic, getWantedState()[1]);
+            // tiltSol.set()
         }
-        if(armController.getY(GenericHID.Hand.kRight) > DEADZONE){ //If joystick is being used
-            armTal1.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kRight));
-        } else {
-            armTal1.set(ControlMode.PercentOutput, 0);
-        }
-        tilt();
-        giveEmTheSucc();
-    }
 
-    public void tilt(){
-        if(armController.getBumperPressed(Hand.kRight)){
-            tiltSol.set(!tiltSol.get());
+        if (armController.getBumperPressed(Hand.kRight)) {
+            tiltSol.set(tiltSol.get() == Value.kReverse ? Value.kForward : Value.kReverse);
         }
-    }
-
-    public void giveEmTheSucc(){ //Suction cup method
-        if(toggle){ //If boolean is true
-            handSol.set(armController.getBButton()); //When B button is pressed, suction is on. When it isn't pressed it turns off
-        } else { //If boolean is false
-            if(armController.getBButtonPressed()){ //Press B button once, suction turns on. Press it again, it turns off
-                handSol.set(!handSol.get());
+        if (armController.getBackButtonPressed()) {
+            shoulderTal.setSelectedSensorPosition(0);
+            elbowTal.setSelectedSensorPosition(0);
+        }
+        if (armController.getBumperPressed(Hand.kLeft)) {
+            sucking = !sucking;
+            if (sucking) {
+                timer.start();
+                succSol.set(Value.kForward);
+            } else {
+                timer.stop();
+                timer.reset();
             }
+            // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
+            // Value.kReverse);
         }
-        if(armController.getStartButton()){ //Boolean toggle is toggled with Start button on xbox controller
-            toggle = !toggle;
+        if (armController.getYButtonPressed()) {
+            vacuum = !vacuum;
+            vacuumSol.set(vacuum);
+        }
+        if (sucking) { // When right trigger is pressed, suction is on. When it isn't pressed it turns
+            vacuumThing();
+        }
+
+    }
+
+    /**
+     * takes in the joystick values from both of the xbox joysticks and moves the
+     * corresponding talons
+     */
+    public void manualArmControl() {
+        if (Math.abs(armController.getY(GenericHID.Hand.kLeft)) > DEADZONE) { // if joystick is being used
+            shoulderTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
+        } else {
+            shoulderTal.set(ControlMode.PercentOutput, 0);
+        }
+        if (Math.abs(armController.getY(GenericHID.Hand.kRight)) > DEADZONE) { // if joystick is being used
+            elbowTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kRight));
+        } else {
+            elbowTal.set(ControlMode.PercentOutput, 0);
         }
     }
+
+    public void suctionTimer() {
+        if (timer.hasPeriodPassed(5)) {
+            timer.reset();
+        } else if (timer.hasPeriodPassed(1)) {
+            vacuumSol.set(false);
+            succSol.set(Value.kReverse);
+        } else {
+            vacuumSol.set(true);
+            succSol.set(Value.kForward);
+        }
+    }
+
+    /**
+     * returns the action of the arm based off of the button pressed
+     * 
+     * @return returns null if no buttons are pressed
+     */
+    public double[] getWantedState() {
+        if (armController.getAButton()) {
+            return PREPARE_HATCH_GROUND;
+        } else if (armController.getXButton()) {
+            return PREPARE_BALL_GROUND;
+        } else if (armController.getPOV() == 0) {
+            return FIRST_LEVEL_HATCH;
+        } else if (armController.getPOV() == 180) {
+            return SECOND_LEVEL_HATCH;
+        } else if (armController.getPOV() == 270) {
+            return FIRST_LEVEL_BALL;
+        } else if (armController.getPOV() == 90) {
+            return SECOND_LEVEL_BALL;
+        } else if (armController.getStartButton()) {
+            return RESET;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * sets up a timer for vacuum-hold solenoid
+     */
+    public void vacuumThing() {
+        
+    }
+
+    public void configTal(boolean inverted, TalonSRX talon) {
+        talon.configFactoryDefault();
+        talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
+        talon.setInverted(inverted);
+        talon.configNominalOutputForward(0, PID_TIMEOUT);
+        talon.configNominalOutputReverse(0, PID_TIMEOUT);
+        talon.configPeakOutputForward(1, PID_TIMEOUT);
+        talon.configPeakOutputReverse(-1, PID_TIMEOUT);
+        talon.selectProfileSlot(PID_SLOT_IDX, PID_LOOP_IDX);
+        talon.configMotionCruiseVelocity(3092, PID_TIMEOUT);
+        talon.configMotionAcceleration(3092, PID_TIMEOUT);
+    }
+
+    public void tuneTalon(TalonSRX talon, double f, double p, double i, double d) {
+        talon.config_kF(PID_SLOT_IDX, f, PID_TIMEOUT);
+        talon.config_kP(PID_SLOT_IDX, p, PID_TIMEOUT);
+        talon.config_kI(PID_SLOT_IDX, i, PID_TIMEOUT);
+        talon.config_kD(PID_SLOT_IDX, d, PID_TIMEOUT);
+    }
+
+    /**
+     * Moves arm to specified encoder values
+     * 
+     * @param encValues encValue[0] = shoulder joint, encValue[1] = elbow joint,
+     *                  encValue[2] = wrist state (0 or 1)
+     */
+    // public void moveArm(double[] encValues) {
+
+    // double joint1 = shoulderTal.getSelectedSensorPosition();
+    // double joint2 = elbowTal.getSelectedSensorPosition();
+    // if (joint1 == 0) {
+    // joint1 = 1;
+    // }
+    // if (joint2 == 0) {
+    // joint2 = 1;
+    // }
+    // // 50 - 45 / 45
+    // double shoulderRatio = 2 * ((encValues[0] - joint1) / joint1);
+    // SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
+    // if (shoulderRatio > 0) {
+    // shoulderRatio = 1;
+    // } else if (shoulderRatio < 0) {
+    // shoulderRatio = -1;
+    // }
+    // if (Math.abs(joint1 - encValues[0]) < ARM_MOE) {
+    // shoulderRatio = 0;
+    // }
+
+    // double elbowRatio = 2 * ((encValues[1] - joint2) / joint2);
+    // SmartDashboard.putNumber("elbowRatio", elbowRatio);
+    // if (elbowRatio > 0) {
+    // elbowRatio = 1;
+    // } else if (elbowRatio < 0) {
+    // elbowRatio = -1;
+    // }
+
+    // if (Math.abs(joint2 - encValues[1]) < ARM_MOE) {
+    // elbowRatio = 0;
+    // }
+    // SmartDashboard.putNumber("encvalues1", encValues[0]);
+    // SmartDashboard.putNumber("encvalue2", encValues[1]);
+    // SmartDashboard.putNumber("joint1", joint1);
+    // SmartDashboard.putNumber("joint2", joint2);
+
+    // shoulderTal.set(ControlMode.Position, shoulderRatio);
+    // elbowTal.set(ControlMode.Position, -elbowRatio);
+    // tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
+
+    // }
 }

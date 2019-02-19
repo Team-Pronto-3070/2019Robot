@@ -6,6 +6,9 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -18,7 +21,11 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.*;
 import java.util.Map;
 import java.lang.Double;
+import edu.wpi.first.wpilibj.Compressor;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.*;
 
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
@@ -32,22 +39,25 @@ import edu.wpi.first.cameraserver.CameraServer;
  * creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends IterativeRobot implements Pronstants {
+public class Robot extends TimedRobot implements Pronstants {
   public static final ADIS16448_IMU imu = new ADIS16448_IMU();
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+
+  boolean canPressComp = true;
+  boolean compGo = true;
+  double[] position = { 0, 0, 0 };
+
+  double eF, eP, eI, eD, sF, sP, sI, sD;
 
   Drive drive;
-  LineSense lineSense;
+  // LineSense lineSense;
 
   ArmControl arm;
   Joystick joyL, joyR, joyArm;
   AnalogInput pressure;
-  DigitalInput lightSensor;
+  // DigitalInput lightSensor;
   // ShuffleboardTab shuffleboardtab;
   private NetworkTableEntry gyroYawEntry;
+  Compressor comp;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -57,36 +67,38 @@ public class Robot extends IterativeRobot implements Pronstants {
   public void robotInit() {
     SmartDashboard.putNumber("Angle", 0);
 
-    
-    lineSense = new LineSense(drive, imu);
+    // lineSense = new LineSense(drive, imu);
     joyL = new Joystick(0);
     joyR = new Joystick(1);
     drive = new Drive(imu);
     arm = new ArmControl();
     pressure = new AnalogInput(0);
-    lightSensor = new DigitalInput(0);
+    comp = new Compressor(0);
+    // lightSensor = new DigitalInput(0);
+    comp.start();
+    arm.succSol.set(Value.kForward);
 
+    gyroYawEntry = Shuffleboard.getTab("Gyro").add("Gyro Yaw", new Double(1)).withWidget(BuiltInWidgets.kDial)
+        .withProperties(Map.of("min", -180, "max", 180)).getEntry();
 
+    // Get the UsbCamera from CameraServer
 
-    gyroYawEntry = Shuffleboard.getTab("Gyro")
-      .add("Gyro Yaw", new Double(1))
-      .withWidget(BuiltInWidgets.kDial)
-      .withProperties(Map.of("min", -180, "max", 180))
-      .getEntry();
-      
-		// Get the UsbCamera from CameraServer
-
-    UsbCamera camera = CameraServer.getInstance().startAutomaticCapture("Front Camera", 0);
-    UsbCamera line = CameraServer.getInstance().startAutomaticCapture("Line Camera", 1);
+    UsbCamera front = CameraServer.getInstance().startAutomaticCapture("Front Camera", 0);
+    UsbCamera back = CameraServer.getInstance().startAutomaticCapture("Back Camera", 1);
     // Set the resolution
-    camera.setResolution(320, 240);
-    camera.setExposureAuto();
+    front.setResolution(320, 240);
+    back.setResolution(320, 240);
+    front.setExposureManual(80);
+    back.setExposureManual(90);
     // Get a CvSink. This will capture Mats from the camera
     CvSink cvSink = CameraServer.getInstance().getVideo();
     // Setup a CvSource. This will send images back to the Dashboard
     CvSource outputStream = CameraServer.getInstance().putVideo("Rectangle", 320, 240);
     // imu.reset();
-    imu.calibrate();
+    // imu.calibrate();
+
+    arm.shoulderTal.setSelectedSensorPosition(0);
+    arm.elbowTal.setSelectedSensorPosition(0);
   }
 
   /**
@@ -100,28 +112,60 @@ public class Robot extends IterativeRobot implements Pronstants {
    */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("Gyro-Z", imu.getAngleZ());// outputs the gyro value to smartDashboard
+    SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());// not used currently, might be used later
 
-    SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());//not used currently, might be used later
-    gyroYawEntry.setDouble(imu.getYaw());
+    // SmartDashboard.putNumber("FR talon current",
+    // drive.talonFR.getOutputCurrent());//outputs the current of the talons to the
+    // dashboard
+    // SmartDashboard.putNumber("FL talon current",
+    // drive.talonFL.getOutputCurrent());
+    // SmartDashboard.putNumber("BR talon current",
+    // drive.talonBR.getOutputCurrent());
+    // SmartDashboard.putNumber("BL talon current",
+    // drive.talonBL.getOutputCurrent());
 
-    SmartDashboard.putNumber("FR talon current", drive.talonFR.getOutputCurrent());//outputs the current of the talons to the dashboard
-    SmartDashboard.putNumber("FL talon current", drive.talonFL.getOutputCurrent());
-    SmartDashboard.putNumber("BR talon current", drive.talonBR.getOutputCurrent());
-    SmartDashboard.putNumber("BL talon current", drive.talonBL.getOutputCurrent());
+    SmartDashboard.putNumber("Shoulder talon current", arm.shoulderTal.getOutputCurrent());
+    SmartDashboard.putNumber("Elbow talon current", arm.elbowTal.getOutputCurrent());
 
-    SmartDashboard.putBoolean("light", lightSensor.get());//used for testing if the light sensor is detecting light or not
+    SmartDashboard.putNumber("Shoulder Encoder", arm.shoulderTal.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Elbow Encoder", arm.elbowTal.getSelectedSensorPosition());
+
+    // SmartDashboard.putBoolean("light", lightSensor.get());//used for testing if
+    // the light sensor is detecting light or not
+
+    SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());// puts the encoder values on
+                                                                                        // the drive
+    // SmartDashboard.putNumber("right encoder",
+    // drive.talonFR.getSelectedSensorPosition());
+    // SmartDashboard.putBoolean("Talons:", drive.turned);//tells the driver if the
+    // robot has turned
+    SmartDashboard.putNumber("Angle of the z axis", drive.getAngle());// this gives the angle of the robot relative to
+                                                                      // how it started
+    SmartDashboard.putNumber("pressure", (pressure.getVoltage() - VOLTS_OFFSET) * VOLT_PSI_RATIO);
+    SmartDashboard.putNumber("joy value", arm.armController.getY(GenericHID.Hand.kRight));
+
+    SmartDashboard.putBoolean("sucking", arm.sucking);
+    SmartDashboard.putNumber("suck time", arm.timer.get());
+
+    SmartDashboard.putBoolean("vacuum", arm.vacuum);
+    SmartDashboard.putBoolean("succ", arm.succSol.get()==Value.kForward);
+
+  }
+
+  public void teleopInit() {
+    SmartDashboard.putNumber("tal1", 0);
+    SmartDashboard.putNumber("tal2", 0);
+    SmartDashboard.putNumber("eh", 0);
     
-    SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());//puts the encoder values on the drive 
-    SmartDashboard.putNumber("right encoder", drive.talonFR.getSelectedSensorPosition());
+    SmartDashboard.putNumber("sF", 0.2481);
+    SmartDashboard.putNumber("sP", 0);
+    SmartDashboard.putNumber("sI", 0);
+    SmartDashboard.putNumber("sD", 0);
 
-    SmartDashboard.putNumber("lower joint encoder",  arm.armTal1.getSelectedSensorPosition());
-    SmartDashboard.putNumber("lower joint encoder",  arm.armTal2.getSelectedSensorPosition());
-    
-    SmartDashboard.putBoolean("calibration finished: ", imu.calFinished());//used to tell driver if the gyro is done calibrating
-
-    SmartDashboard.putBoolean("Talons:", drive.turned);//tells the driver if the robot has turned
-    SmartDashboard.putNumber("Angle of the zedd axis", drive.getAngle());//this gives the angle of the robot relative to how it started
+    SmartDashboard.putNumber("eF", 0.2481);
+    SmartDashboard.putNumber("eP", 0);
+    SmartDashboard.putNumber("eI", 0);
+    SmartDashboard.putNumber("eD", 0);
   }
 
   /**
@@ -129,15 +173,39 @@ public class Robot extends IterativeRobot implements Pronstants {
    */
   @Override
   public void teleopPeriodic() {
-
-    if(joyL.getRawButton(3)) {
-      arm.radialNerve(); //Arm control method
-    }else if(joyL.getRawButton(2)){
-      drive.driveToAngle(90);
-    }else{ 
-      drive.driveRamp();  //Takes joystick inputs, curves inputs
-                          // and sets motors to curved amount
+    arm.controlArm(); // Arm control method
+    drive.tankDrive(); // Takes joystick inputs, curves inputs
+    // and sets motors to curved amount
+    if (arm.armController.getTriggerAxis(Hand.kRight)==1) {// if right bumper is pressed
+      if (canPressComp) {// if button press will tilt
+        // set it to the opposite value
+        compGo = !compGo;
+        if (compGo) {
+          comp.start();
+        } else {
+          comp.stop();
+        }
+      }
+      canPressComp = false;// button press will no longer tilt
+    } else {// right bumper isnt pressed
+      canPressComp = true;// button press is able to tilt
     }
+    position[0] = SmartDashboard.getNumber("tal1", 0.0);
+    position[1] = SmartDashboard.getNumber("tal2", 0.0);
+    position[2] = SmartDashboard.getNumber("eh", 0.0);
+
+    eF = SmartDashboard.getNumber("eF", 0.2481);
+    eP = SmartDashboard.getNumber("eP", 0);
+    eI = SmartDashboard.getNumber("eI", 0);
+    eD = SmartDashboard.getNumber("eD", 0);
+    sF = SmartDashboard.getNumber("sF", 0.2481);
+    sP = SmartDashboard.getNumber("sP", 0);
+    sI = SmartDashboard.getNumber("sI", 0);
+    sD = SmartDashboard.getNumber("sD", 0);
+    arm.tuneTalon(arm.shoulderTal, eF, eP, eI, eD);
+    arm.tuneTalon(arm.elbowTal, sF, sP, sI, sD);
+    arm.armController.setRumble(RumbleType.kLeftRumble, 0);
+    //arm.armController.setRumble(RumbleType.kLeftRumble, SmartDashboard.getNumber("pressure", 100)/100);
   }
 
   /**
