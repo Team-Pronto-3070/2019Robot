@@ -176,12 +176,14 @@ public class Robot extends TimedRobot implements Pronstants {
     if(arm.armController.getAButton()){
       arm.shoulderTal.set(ControlMode.MotionMagic, position[0]);
       arm.elbowTal.set(ControlMode.MotionMagic, position[1]);
+    }else if(arm.armController.getXButton()){
+    arm.moveArm(position);
     }else{
       arm.manualArmControl();
     }
     drive.tankDrive(); // Takes joystick inputs, curves inputs
     // and sets motors to curved amount
-
+    
 
     if (arm.armController.getTriggerAxis(Hand.kRight) == 1) {// if right bumper is pressed
       if (canPressComp) {// if button press will tilt
@@ -197,6 +199,15 @@ public class Robot extends TimedRobot implements Pronstants {
     } else {// right bumper isnt pressed
       canPressComp = true;// button press is able to tilt
     }
+
+    if (arm.armController.getYButtonPressed()) {
+      arm.tiltSol.set(Value.kOff);
+    }
+    if (arm.armController.getBackButtonPressed()) {
+        arm.shoulderTal.setSelectedSensorPosition(0);
+        arm.elbowTal.setSelectedSensorPosition(0);
+    }
+
     position[0] = SmartDashboard.getNumber("tal1", 0.0);
     position[1] = SmartDashboard.getNumber("tal2", 0.0);
     position[2] = SmartDashboard.getNumber("eh", 0.0);

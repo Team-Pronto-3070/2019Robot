@@ -81,10 +81,7 @@ public class ArmControl implements Pronstants {
             // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
             // Value.kReverse);
         }
-        if (armController.getYButtonPressed()) {
-            vacuum = !vacuum;
-            vacuumSol.set(vacuum);
-        }
+        
         if (sucking) { // When right trigger is pressed, suction is on. When it isn't pressed it turns
             suctionTimer();
         }
@@ -109,16 +106,16 @@ public class ArmControl implements Pronstants {
     }
 
     public void suctionTimer() {
-        if (timer.get() > 2) {
+        if (timer.get() > 1) {
             timer.reset();
-        } else if (timer.get() > 3) {
+        } else if (timer.get() > .25) {
             vacuumSol.set(false);
-            if (timer.get() > 3.1) {
+            if (timer.get() > .3) {
                 succSol.set(Value.kReverse);
             }
         } else {
             vacuumSol.set(true);
-            if (timer.get() > 4) {
+            if (timer.get() > .05) {
                 succSol.set(Value.kForward);
             }
         }
@@ -219,8 +216,8 @@ public class ArmControl implements Pronstants {
         SmartDashboard.putNumber("joint1", joint1);
         SmartDashboard.putNumber("joint2", joint2);
 
-        shoulderTal.set(ControlMode.Position, shoulderRatio);
-        elbowTal.set(ControlMode.Position, -elbowRatio);
+        shoulderTal.set(ControlMode.PercentOutput, shoulderRatio);
+        elbowTal.set(ControlMode.PercentOutput, -elbowRatio);
         tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
 
     }
