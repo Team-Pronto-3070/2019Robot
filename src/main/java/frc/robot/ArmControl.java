@@ -11,14 +11,14 @@ import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.AnalogInput;
 
 public class ArmControl implements Pronstants {
     XboxController armController;
     TalonSRX shoulderTal, elbowTal;
     DoubleSolenoid succSol, tiltSol;
     Solenoid vacuumSol;
-    Timer timer;
+    AnalogInput succSensor;
     boolean sucking = false;
     boolean vacuum = true;
 
@@ -32,7 +32,7 @@ public class ArmControl implements Pronstants {
         tiltSol = new DoubleSolenoid(TILTSOL_PORT1, TILTSOL_PORT2);
         vacuumSol = new Solenoid(VACUSOL_PORT);
 
-        timer = new Timer();
+        succSensor = new AnalogInput(SUCC_SENSOR_PORT);
 
         configTal(false, shoulderTal);
         configTal(true, elbowTal);
@@ -69,11 +69,7 @@ public class ArmControl implements Pronstants {
         }
         if (armController.getBumperPressed(Hand.kLeft)) {
             sucking = !sucking;
-            if (sucking) {
-                timer.start();
-            } else {
-                timer.stop();
-                timer.reset();
+            if (!sucking) {
                 succSol.set(Value.kForward);
             }
             // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
@@ -107,19 +103,12 @@ public class ArmControl implements Pronstants {
     }
 
     public void suctionTimer() {
-        if (timer.get() > 1) {
-            timer.reset();
-        } else if (timer.get() > 0.25) {
-            vacuumSol.set(false);
-            if(timer.get() > 0.30){
+            if(getSuccValue() > SUCC_MIN){
                 succSol.set(Value.kReverse);
             }
-        } else {
-            vacuumSol.set(true);
-            if(timer.get() > 0.05){
+             else if(getSuccValue() < SUCC_MAX){
                 succSol.set(Value.kForward);
             }
-        }
     }
 
     /**
@@ -214,6 +203,9 @@ public class ArmControl implements Pronstants {
         shoulderTal.set(ControlMode.Position, shoulderRatio);
         elbowTal.set(ControlMode.Position, -elbowRatio);
         tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
+    }
 
+    public double getSuccValue(){
+        return succSensor.getValue() * SUCC_CONSTANT;
     }
 }
