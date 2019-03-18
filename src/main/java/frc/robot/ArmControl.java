@@ -94,7 +94,19 @@ public class ArmControl implements Pronstants {
      * takes in the joystick values from both of the xbox joysticks and moves the
      * corresponding talons
      */
-    public void manualArmControl() {
+    public void manualArmControl() { 
+        if(limitSwitch1 && limitSwitch2){
+        if (armController.getY(GenericHID.Hand.kLeft)) < -DEADZONE) { // if joystick is being used
+            shoulderTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
+        } else {
+            shoulderTal.set(ControlMode.PercentOutput, 0);
+        }
+        if ((armController.getY(GenericHID.Hand.kRight)) < -DEADZONE) { // if joystick is being used
+            elbowTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kRight));
+        } else {
+            elbowTal.set(ControlMode.PercentOutput, 0);
+        }
+    }else{
         if (Math.abs(armController.getY(GenericHID.Hand.kLeft)) > DEADZONE) { // if joystick is being used
             shoulderTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
         } else {
@@ -105,6 +117,7 @@ public class ArmControl implements Pronstants {
         } else {
             elbowTal.set(ControlMode.PercentOutput, 0);
         }
+    }
     }
 
     public void suctionTimer() {
@@ -130,11 +143,11 @@ public class ArmControl implements Pronstants {
      */
     public double[] getWantedState() {
         if (armController.getAButton()) {
-            return PREPARE_HATCH_GROUND;
+            return PREPARE_HATCH_GROUND;//certain angle 1
         } else if (armController.getXButton()) {
-            return PREPARE_BALL_GROUND;
+            return PREPARE_BALL_GROUND;//certain angle 1    
         } else if (armController.getPOV() == 0) {
-            return FIRST_LEVEL_HATCH;
+            return FIRST_LEVEL_HATCH;//certain angle 2
         } else if (armController.getPOV() == 180) {
             return SECOND_LEVEL_HATCH;
         } else if (armController.getPOV() == 270) {
@@ -215,6 +228,12 @@ public class ArmControl implements Pronstants {
         shoulderTal.set(ControlMode.Position, shoulderRatio);
         elbowTal.set(ControlMode.Position, -elbowRatio);
         tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
+
+    }
+
+    public void stopArm() {
+            
+        }
 
     }
 }
