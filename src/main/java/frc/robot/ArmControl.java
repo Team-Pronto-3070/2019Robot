@@ -56,8 +56,7 @@ public class ArmControl implements Pronstants {
         if (getWantedState() == null) {
             manualArmControl();
         } else {
-            shoulderTal.set(ControlMode.MotionMagic, getWantedState()[0]);
-            elbowTal.set(ControlMode.MotionMagic, getWantedState()[1]);
+            moveArm(getWantedState());
             // tiltSol.set()
         }
 
