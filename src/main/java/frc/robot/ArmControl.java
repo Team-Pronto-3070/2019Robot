@@ -17,8 +17,10 @@ public class ArmControl implements Pronstants {
     XboxController armController;
     TalonSRX shoulderTal, elbowTal;
     DoubleSolenoid succSol, tiltSol;
+    Solenoid vacuumSol;
     AnalogInput succSensor;
     boolean sucking = false;
+    boolean vacuum = true;
 
     public ArmControl() {
         armController = new XboxController(ARMCONT_PORT);
@@ -28,6 +30,7 @@ public class ArmControl implements Pronstants {
 
         succSol = new DoubleSolenoid(SUCCSOL_PORT1, SUCCSOL_PORT2);
         tiltSol = new DoubleSolenoid(TILTSOL_PORT1, TILTSOL_PORT2);
+        vacuumSol = new Solenoid(VACUSOL_PORT);
 
         succSensor = new AnalogInput(SUCC_SENSOR_PORT);
 
@@ -72,6 +75,7 @@ public class ArmControl implements Pronstants {
             // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
             // Value.kReverse);
         }
+
     }
 
     /**
@@ -123,6 +127,13 @@ public class ArmControl implements Pronstants {
         } else {
             return null;
         }
+    }
+
+    /** 
+     * sets up a timer for vacuum-hold solenoid
+     */
+    public void vacuumThing() {
+        
     }
 
     public void configTal(boolean inverted, TalonSRX talon) {
