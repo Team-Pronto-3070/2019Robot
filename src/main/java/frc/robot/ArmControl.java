@@ -75,6 +75,13 @@ public class ArmControl implements Pronstants {
             // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
             // Value.kReverse);
         }
+        if (armController.getYButtonPressed()) {
+            vacuum = !vacuum;
+            vacuumSol.set(vacuum);
+        }
+        if (sucking) { // When right trigger is pressed, suction is on. When it isn't pressed it turns
+            suctionTimer();       
+         }
 
     }
 
