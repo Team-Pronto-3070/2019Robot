@@ -47,6 +47,30 @@ public class Drive implements Pronstants {
 
     }
 
+    public Drive() {
+
+        talonFL = new TalonSRX(TALONFL_PORT); // Defines Talon objects
+        talonBL = new TalonSRX(TALONBL_PORT);
+        talonFR = new TalonSRX(TALONFR_PORT);
+        talonBR = new TalonSRX(TALONBR_PORT);
+
+        talonFL.setInverted(true); // Inverts Talon outputs to correctly orient joystick values
+        talonBL.setInverted(true);
+        talonFR.setInverted(false);
+        talonBR.setInverted(false);
+
+        talonFL.configFactoryDefault(); // Sets talons to factory defaults
+        talonBL.configFactoryDefault();
+        talonFR.configFactoryDefault();
+        talonBR.configFactoryDefault();
+
+        talonFL.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, PID_LOOP_IDX, PID_TIMEOUT);
+        talonFR.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, PID_LOOP_IDX, PID_TIMEOUT);
+
+        joyL = new Joystick(JOYL_PORT); // Defines joysticks
+        joyR = new Joystick(JOYR_PORT);
+    }
+
     public void leftDrive(double power) { // Left side drive. Used in other methods
 
         talonFL.set(ControlMode.PercentOutput, power);

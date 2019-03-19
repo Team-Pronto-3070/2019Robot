@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID;
 import com.ctre.phoenix.motorcontrol.*;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Timer;
 
 public class ArmControl implements Pronstants {
     XboxController armController;
@@ -21,6 +23,12 @@ public class ArmControl implements Pronstants {
     AnalogInput succSensor;
     boolean sucking = false;
     boolean vacuum = true;
+    boolean timer1CanGo = false;
+    boolean timer2CanGo = false;
+    Timer timer1, timer2;
+   
+    public static double SUCC_MIN = 900; //TODO Assign value to placeholder for minimum vacuum value
+    public static double SUCC_MAX = 1400; //TODO Assign value to placeholder for maximum vacuum value
 
     public ArmControl() {
         armController = new XboxController(ARMCONT_PORT);
@@ -34,11 +42,13 @@ public class ArmControl implements Pronstants {
 
         succSensor = new AnalogInput(SUCC_SENSOR_PORT);
 
-        configTal(false, shoulderTal);
+        configTal(true, shoulderTal);
         configTal(true, elbowTal);
 
         tuneTalon(shoulderTal, 0.2481, 0, 0, 0);
         tuneTalon(elbowTal, 0.2481, 0, 0, 0);
+        timer1 = new Timer();
+        timer2 = new Timer();
     }
 
     /**
@@ -70,25 +80,29 @@ public class ArmControl implements Pronstants {
         if (armController.getBumperPressed(Hand.kLeft)) {
             sucking = !sucking;
             if (!sucking) {
+                SmartDashboard.putBoolean("forward", true);
                 succSol.set(Value.kForward);
             }
             // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
             // Value.kReverse);
         }
-        if (armController.getYButtonPressed()) {
-            vacuum = !vacuum;
-            vacuumSol.set(vacuum);
-        }
+        vacuumSol.set(sucking);
         if (sucking) { // When right trigger is pressed, suction is on. When it isn't pressed it turns
-            suctionTimer();       
+            suctionTimer();   
+            SmartDashboard.putBoolean("forward", false);
+            armController.setRumble(RumbleType.kLeftRumble, 0.2);    
+         }else{
+            armController.setRumble(RumbleType.kLeftRumble, 0);    
+
          }
+         
 
     }
 
     /**
      * takes in the joystick values from both of the xbox joysticks and moves the
      * corresponding talons
-     */
+     */  
     public void manualArmControl() {
         if (Math.abs(armController.getY(GenericHID.Hand.kLeft)) > DEADZONE) { // if joystick is being used
             shoulderTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
@@ -103,12 +117,40 @@ public class ArmControl implements Pronstants {
     }
 
     public void suctionTimer() {
-            if(getSuccValue() > SUCC_MIN){
-                succSol.set(Value.kReverse);
-            }
-             else if(getSuccValue() < SUCC_MAX){
-                succSol.set(Value.kForward);
-            }
+        if(getSuccValue() > SUCC_MAX){
+            succSol.set(Value.kReverse);
+        }else if(getSuccValue() < SUCC_MIN){
+            
+            succSol.set(Value.kForward);
+        }
+        // SmartDashboard.putNumber("timer1", timer1.get());
+        // SmartDashboard.putNumber("timer2", timer2.get());
+        // SmartDashboard.putBoolean("timer1cango", timer1CanGo);
+        // SmartDashboard.putBoolean("timer2cango", timer2CanGo);
+        //     if(getSuccValue() > SUCC_MAX&&!timer1CanGo){
+        //         succSol.set(Value.kReverse);
+        //         timer1.reset();
+        //         timer1.start();
+        //         timer1CanGo = true;
+        //     }
+        //      else if(getSuccValue() < SUCC_MIN&&!timer2CanGo){
+        //         succSol.set(Value.kForward);
+        //         timer2.reset();
+        //         timer2.start();
+        //         timer2CanGo = true;
+        //     }
+            
+        //     if(timer1.get()>.1){
+        //         vacuumSol.set(true);
+        //         timer1.stop();
+        //         timer1CanGo = false;
+        //     }
+            
+        //     if(timer2.get()>.1){
+        //         vacuumSol.set(false);
+        //         timer2.stop();
+        //         timer2CanGo = false;
+        //     }
     }
 
     /**
@@ -142,6 +184,7 @@ public class ArmControl implements Pronstants {
     public void vacuumThing() {
         
     }
+
 
     public void configTal(boolean inverted, TalonSRX talon) {
         talon.configFactoryDefault();

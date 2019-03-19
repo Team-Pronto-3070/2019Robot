@@ -19,7 +19,7 @@ public interface Pronstants {
     public static final int TILTSOL_PORT2 = 3; //TODO assign port number Tilt piston solenoid*
     public static final int VACUSOL_PORT = 4;
 
-    public static final int SUCC_SENSOR_PORT = 0; //TODO Assign port number for succ sensor
+    public static final int SUCC_SENSOR_PORT = 1; //TODO Assign port number for succ sensor
 
     public static final double DEADZONE = .1; //Drive joystick deadzone
 
@@ -61,6 +61,4 @@ public interface Pronstants {
 
     public static double SUCC_CONSTANT = 1; //TODO Assign value to placeholder for scaling constant
 
-    public static double SUCC_MIN = 0; //TODO Assign value to placeholder for minimum vacuum value
-    public static double SUCC_MAX = 1; //TODO Assign value to placeholder for maximum vacuum value
 }

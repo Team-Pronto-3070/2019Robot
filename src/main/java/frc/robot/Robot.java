@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.*;
 import java.util.Map;
 import java.lang.Double;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -40,7 +41,7 @@ import edu.wpi.first.cameraserver.CameraServer;
  * project.
  */
 public class Robot extends TimedRobot implements Pronstants {
-  public static final ADIS16448_IMU imu = new ADIS16448_IMU();
+ // public static final ADIS16448_IMU imu = new ADIS16448_IMU();
 
   boolean canPressComp = true;
   boolean compGo = true;
@@ -68,7 +69,7 @@ public class Robot extends TimedRobot implements Pronstants {
     // lineSense = new LineSense(drive, imu);
     joyL = new Joystick(0);
     joyR = new Joystick(1);
-    drive = new Drive(imu);
+    drive = new Drive();
     arm = new ArmControl();
     pressure = new AnalogInput(0);
     comp = new Compressor(0);
@@ -107,7 +108,7 @@ public class Robot extends TimedRobot implements Pronstants {
    */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());// not used currently, might be used later
+   // SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());// not used currently, might be used later
 
     // SmartDashboard.putNumber("FR talon current",
     // drive.talonFR.getOutputCurrent());//outputs the current of the talons to the
@@ -134,17 +135,18 @@ public class Robot extends TimedRobot implements Pronstants {
     // drive.talonFR.getSelectedSensorPosition());
     // SmartDashboard.putBoolean("Talons:", drive.turned);//tells the driver if the
     // robot has turned
-    SmartDashboard.putNumber("Angle of the z axis", drive.getAngle());// this gives the angle of the robot relative to
+    //SmartDashboard.putNumber("Angle of the z axis", drive.getAngle());// this gives the angle of the robot relative to
                                                                       // how it started
     SmartDashboard.putNumber("pressure", (pressure.getVoltage() - VOLTS_OFFSET) * VOLT_PSI_RATIO);
     SmartDashboard.putNumber("joy value", arm.armController.getY(GenericHID.Hand.kRight));
 
     SmartDashboard.putBoolean("sucking", arm.sucking);
-    SmartDashboard.putNumber("suck time", arm.timer.get());
 
-    SmartDashboard.putBoolean("vacuum", arm.vacuum);
+    SmartDashboard.putBoolean("vacuum", arm.vacuumSol.get());
     SmartDashboard.putBoolean("succ", arm.succSol.get() == Value.kReverse);
-
+    SmartDashboard.putNumber("vaccuum sensor", arm.getSuccValue());
+    arm.SUCC_MAX = SmartDashboard.getNumber("max", 0.0);
+    arm.SUCC_MIN = SmartDashboard.getNumber("min", 0.0);
   }
 
   public void teleopInit() {
@@ -181,5 +183,8 @@ public class Robot extends TimedRobot implements Pronstants {
    */
   @Override
   public void testPeriodic() {
+  }
+  public void disabledPeriodic(){
+    arm.succSol.set(Value.kForward);
   }
 }
