@@ -42,7 +42,7 @@ public class ArmControl implements Pronstants {
 
         succSensor = new AnalogInput(SUCC_SENSOR_PORT);
 
-        configTal(true, shoulderTal);
+        configTal(false, shoulderTal);
         configTal(true, elbowTal);
 
         tuneTalon(shoulderTal, 0.2481, 0, 0, 0);
