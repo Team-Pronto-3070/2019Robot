@@ -23,6 +23,7 @@ public interface Pronstants {
 
     public static final double GYRO_DEADZONE = 1.0;//Gyro deadzone
 
+    public static final int SUCC_SENSOR_PORT = 1; //TODO Assign port number for succ sensor
 
     public static final int LINE_PORT_1 = 0;
     public static final int LINE_PORT_2 = 1;
@@ -53,6 +54,8 @@ public interface Pronstants {
     public static final int PID_SLOT_IDX = 0;
     public static final int PID_LOOP_IDX = 0;
     public static final int PID_TIMEOUT = 30;
+
+    public static double SUCC_CONSTANT = 1; //TODO Assign value to placeholder for scaling constant
 
     public static final double VOLTS_OFFSET = .5;
     public static final double VOLT_PSI_RATIO = 50;

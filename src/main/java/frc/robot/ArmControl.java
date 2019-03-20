@@ -12,15 +12,20 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 public class ArmControl implements Pronstants {
     XboxController armController;
     TalonSRX shoulderTal, elbowTal;
     DoubleSolenoid succSol, tiltSol;
     Solenoid vacuumSol;
-    Timer timer;
+    AnalogInput succSensor;
     boolean sucking = false;
     boolean vacuum = true;
+
+    public static double SUCC_MIN = 900; // TODO Assign value to placeholder for minimum vacuum value
+    public static double SUCC_MAX = 1400; // TODO Assign value to placeholder for maximum vacuum value
 
     public ArmControl() {
         armController = new XboxController(ARMCONT_PORT);
@@ -32,7 +37,7 @@ public class ArmControl implements Pronstants {
         tiltSol = new DoubleSolenoid(TILTSOL_PORT1, TILTSOL_PORT2);
         vacuumSol = new Solenoid(VACUSOL_PORT);
 
-        timer = new Timer();
+        succSensor = new AnalogInput(SUCC_SENSOR_PORT);
 
         configTal(false, shoulderTal);
         configTal(true, elbowTal);
@@ -69,24 +74,22 @@ public class ArmControl implements Pronstants {
         }
         if (armController.getBumperPressed(Hand.kLeft)) {
             sucking = !sucking;
-            if (sucking) {
-                timer.start();
-            } else {
-                timer.stop();
-                timer.reset();
+            if (!sucking) {
+                SmartDashboard.putBoolean("forward", true);
                 succSol.set(Value.kForward);
+                // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
+                // Value.kReverse);
             }
-            // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
-            // Value.kReverse);
-        }
-        if (armController.getYButtonPressed()) {
-            vacuum = !vacuum;
-            vacuumSol.set(vacuum);
-        }
-        if (sucking) { // When right trigger is pressed, suction is on. When it isn't pressed it turns
-            suctionTimer();       
-         }
+            vacuumSol.set(sucking);
+            if (sucking) { // When right trigger is pressed, suction is on. When it isn't pressed it turns
+                suctionTimer();
+                SmartDashboard.putBoolean("forward", false);
+                armController.setRumble(RumbleType.kLeftRumble, 0.2);
+            } else {
+                armController.setRumble(RumbleType.kLeftRumble, 0);
 
+            }
+        }
     }
 
     /**
@@ -120,18 +123,10 @@ public class ArmControl implements Pronstants {
     }
 
     public void suctionTimer() {
-        if (timer.get() > 1) {
-            timer.reset();
-        } else if (timer.get() > 0.25) {
-            vacuumSol.set(false);
-            if(timer.get() > 0.30){
-                succSol.set(Value.kReverse);
-            }
-        } else {
-            vacuumSol.set(true);
-            if(timer.get() > 0.05){
-                succSol.set(Value.kForward);
-            }
+        if (getSuccValue() > SUCC_MAX) {
+            succSol.set(Value.kReverse);
+        } else if (getSuccValue() < SUCC_MIN) {
+            succSol.set(Value.kForward);
         }
     }
 
@@ -142,11 +137,11 @@ public class ArmControl implements Pronstants {
      */
     public double[] getWantedState() {
         if (armController.getAButton()) {
-            return PREPARE_HATCH_GROUND;//certain angle 1
+            return PREPARE_HATCH_GROUND;// certain angle 1
         } else if (armController.getXButton()) {
-            return PREPARE_BALL_GROUND;//certain angle 1    
+            return PREPARE_BALL_GROUND;// certain angle 1
         } else if (armController.getPOV() == 0) {
-            return FIRST_LEVEL_HATCH;//certain angle 2
+            return FIRST_LEVEL_HATCH;// certain angle 2
         } else if (armController.getPOV() == 180) {
             return SECOND_LEVEL_HATCH;
         } else if (armController.getPOV() == 270) {
@@ -160,11 +155,11 @@ public class ArmControl implements Pronstants {
         }
     }
 
-    /** 
+    /**
      * sets up a timer for vacuum-hold solenoid
      */
     public void vacuumThing() {
-        
+
     }
 
     public void configTal(boolean inverted, TalonSRX talon) {
@@ -229,10 +224,21 @@ public class ArmControl implements Pronstants {
         tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
 
     }
+    // public void moveArmV2(double[] encValues){
+    //     if(Math.abs(shoulderTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE){
+    //         shoulderTal.set(ControlMode.PercentOutput, .7);
+    //     }else{
+    //         shoulderTal.set(ControlMode.PercentOutput, 0);
+    //     }
+    //     if(Math.abs(elbowTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE){
+    //         elbowTal.set(ControlMode.PercentOutput, .7);
+    //     }else{
+    //         elbowTal.set(ControlMode.PercentOutput, 0);
+    //     }
+    // }
 
-    public void stopArm() {
-            
-        }
+    public double getSuccValue(){
+        return succSensor.getValue() * SUCC_CONSTANT;
 
     }
 }

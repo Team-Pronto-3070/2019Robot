@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.*;
 import java.util.Map;
 import java.lang.Double;
 import edu.wpi.first.wpilibj.Compressor;
-
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.*;
@@ -140,11 +140,14 @@ public class Robot extends TimedRobot implements Pronstants {
     SmartDashboard.putNumber("joy value", arm.armController.getY(GenericHID.Hand.kRight));
 
     SmartDashboard.putBoolean("sucking", arm.sucking);
-    SmartDashboard.putNumber("suck time", arm.timer.get());
+    
 
-    SmartDashboard.putBoolean("vacuum", arm.vacuum);
+    SmartDashboard.putBoolean("vacuum", arm.vacuumSol.get());
     SmartDashboard.putBoolean("succ", arm.succSol.get() == Value.kReverse);
 
+    SmartDashboard.putNumber("vaccuum sensor", arm.getSuccValue());
+    arm.SUCC_MAX = SmartDashboard.getNumber("max", 0.0);
+    arm.SUCC_MIN = SmartDashboard.getNumber("min", 0.0);
   }
 
   public void teleopInit() {
@@ -181,5 +184,9 @@ public class Robot extends TimedRobot implements Pronstants {
    */
   @Override
   public void testPeriodic() {
+  }
+
+  public void disabledPeriodic(){
+    arm.succSol.set(Value.kForward);
   }
 }
