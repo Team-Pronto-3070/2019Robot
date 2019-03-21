@@ -186,13 +186,7 @@ public class ArmControl implements Pronstants {
 
         double joint1 = shoulderTal.getSelectedSensorPosition();
         double joint2 = elbowTal.getSelectedSensorPosition();
-        if (joint1 == 0) {
-            joint1 = 1;
-        }
-        if (joint2 == 0) {
-            joint2 = 1;
-        }
-        double shoulderRatio = .15 + ((encValues[0] - joint1) / joint1);
+        double shoulderRatio = .15 + ((encValues[0] - joint1) / 50);
         SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
         if (shoulderRatio >= 1) {
             shoulderRatio = 1;
@@ -203,7 +197,7 @@ public class ArmControl implements Pronstants {
             shoulderRatio = 0;
         }
 
-        double elbowRatio = .15 + ((encValues[1] - joint2) / joint2);
+        double elbowRatio = .15 + ((encValues[1] - joint2) / 50);
         SmartDashboard.putNumber("elbowRatio", elbowRatio);
         if (elbowRatio >= 1) {
             elbowRatio = 1;
@@ -221,21 +215,20 @@ public class ArmControl implements Pronstants {
 
         shoulderTal.set(ControlMode.Position, shoulderRatio);
         elbowTal.set(ControlMode.Position, -elbowRatio);
-        tiltSol.set(encValues[2] == 1 ? Value.kForward : Value.kReverse);
 
     }
-    // public void moveArmV2(double[] encValues){
-    //     if(Math.abs(shoulderTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE){
-    //         shoulderTal.set(ControlMode.PercentOutput, .7);
-    //     }else{
-    //         shoulderTal.set(ControlMode.PercentOutput, 0);
-    //     }
-    //     if(Math.abs(elbowTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE){
-    //         elbowTal.set(ControlMode.PercentOutput, .7);
-    //     }else{
-    //         elbowTal.set(ControlMode.PercentOutput, 0);
-    //     }
-    // }
+    public void moveArmV2(double[] encValues){
+        if(Math.abs(shoulderTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE){
+            shoulderTal.set(ControlMode.PercentOutput, .7);
+        }else{
+            shoulderTal.set(ControlMode.PercentOutput, 0);
+        }
+        if(Math.abs(elbowTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE){
+            elbowTal.set(ControlMode.PercentOutput, .7);
+        }else{
+            elbowTal.set(ControlMode.PercentOutput, 0);
+        }
+    }
 
     public double getSuccValue(){
         return succSensor.getValue() * SUCC_CONSTANT;
