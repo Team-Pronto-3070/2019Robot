@@ -61,7 +61,7 @@ public class Robot extends TimedRobot implements Pronstants {
     SmartDashboard.putNumber("Angle", 0);
 
     // lineSense = new LineSense(drive, imu);
-    drive = new Drive();
+    drive = new Drive(xbox);
   }
 
   /**
