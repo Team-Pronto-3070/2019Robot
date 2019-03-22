@@ -96,19 +96,8 @@ public class ArmControl implements Pronstants {
      * takes in the joystick values from both of the xbox joysticks and moves the
      * corresponding talons
      */
-    public void manualArmControl() { 
-        if(limitSwitch1 && limitSwitch2){
-        if (armController.getY(GenericHID.Hand.kLeft)) < -DEADZONE) { // if joystick is being used
-            shoulderTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
-        } else {
-            shoulderTal.set(ControlMode.PercentOutput, 0);
-        }
-        if ((armController.getY(GenericHID.Hand.kRight)) < -DEADZONE) { // if joystick is being used
-            elbowTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kRight));
-        } else {
-            elbowTal.set(ControlMode.PercentOutput, 0);
-        }
-    }else{
+    public void manualArmControl() {
+
         if (Math.abs(armController.getY(GenericHID.Hand.kLeft)) > DEADZONE) { // if joystick is being used
             shoulderTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
         } else {
@@ -119,7 +108,6 @@ public class ArmControl implements Pronstants {
         } else {
             elbowTal.set(ControlMode.PercentOutput, 0);
         }
-    }
     }
 
     public void suctionTimer() {
@@ -217,20 +205,21 @@ public class ArmControl implements Pronstants {
         elbowTal.set(ControlMode.Position, -elbowRatio);
 
     }
-    public void moveArmV2(double[] encValues){
-        if(Math.abs(shoulderTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE){
+
+    public void moveArmV2(double[] encValues) {
+        if (Math.abs(shoulderTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE) {
             shoulderTal.set(ControlMode.PercentOutput, .7);
-        }else{
+        } else {
             shoulderTal.set(ControlMode.PercentOutput, 0);
         }
-        if(Math.abs(elbowTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE){
+        if (Math.abs(elbowTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE) {
             elbowTal.set(ControlMode.PercentOutput, .7);
-        }else{
+        } else {
             elbowTal.set(ControlMode.PercentOutput, 0);
         }
     }
 
-    public double getSuccValue(){
+    public double getSuccValue() {
         return succSensor.getValue() * SUCC_CONSTANT;
 
     }
