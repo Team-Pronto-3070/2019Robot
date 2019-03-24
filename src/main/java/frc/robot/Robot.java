@@ -187,4 +187,8 @@ public class Robot extends TimedRobot implements Pronstants {
   public void disabledPeriodic(){
     arm.succSol.set(Value.kForward);
   }
+public void autonomousPeriodic(){
+  arm.controlArm();
+  drive.tankDrive();
+ }
 }
