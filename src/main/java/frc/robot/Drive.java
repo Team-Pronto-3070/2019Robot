@@ -17,7 +17,7 @@ public class Drive implements Pronstants {
     double right = 0.0; // Right side ramp
     boolean turned = false; // For the driveTo angle command
     double angleOriginal; // initilializes the angle offset
-    double turbo = .6;
+    double turbo = .7;
 
     public Drive(ADIS16448_IMU imu) {
 
@@ -82,7 +82,7 @@ public class Drive implements Pronstants {
         if(joyL.getRawButton(1)||joyR.getRawButton(1)){
             turbo = 1;
         }else{
-            turbo = .6;
+            turbo = .7;
         }
     }
 
