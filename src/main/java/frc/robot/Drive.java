@@ -17,6 +17,7 @@ public class Drive implements Pronstants {
     double right = 0.0; // Right side ramp
     boolean turned = false; // For the driveTo angle command
     double angleOriginal; // initilializes the angle offset
+    double turbo = .6;
 
     public Drive(ADIS16448_IMU imu) {
 
@@ -68,15 +69,20 @@ public class Drive implements Pronstants {
         right = (right + joyR.getRawAxis(1)) / 2;
 
         if (Math.abs(joyL.getRawAxis(1)) > DEADZONE) {// doesn't drive if the joystick is close to zero but not zero
-            leftDrive(left/2);// sets the motor to a value 3 times lower than it should be to be calmer
+            leftDrive(left*turbo);// sets the motor to a value 3 times lower than it should be to be calmer
         } else {
             leftDrive(0); // If no input, stop left side
         }
 
         if (Math.abs(joyR.getRawAxis(1)) > DEADZONE) {// Same as left, but right
-            rightDrive(right/2);
+            rightDrive(right*turbo);
         } else {
             rightDrive(0);
+        }
+        if(joyL.getRawButton(1)||joyR.getRawButton(1)){
+            turbo = 1;
+        }else{
+            turbo = .6;
         }
     }
 
