@@ -80,7 +80,7 @@ public class ArmControl implements Pronstants {
             } else {
                 armController.setRumble(RumbleType.kLeftRumble, 0);
                 succSol.set(Value.kForward);
-
+                vacuumSol.set(true);
             }
         }
     }
@@ -104,10 +104,10 @@ public class ArmControl implements Pronstants {
     }
 
     public void suctionTimer() {
-        if (getSuccValue() > SUCC_MAX) {
+        if (succSensor.getValue() > SUCC_MAX) {
             succSol.set(Value.kReverse);
             vacuumSol.set(true);
-        } else if (getSuccValue() < SUCC_MIN) {
+        } else if (succSensor.getValue() < SUCC_MIN) {
             succSol.set(Value.kForward);
             vacuumSol.set(false);
         }
