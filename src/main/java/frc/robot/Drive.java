@@ -19,6 +19,7 @@ public class Drive implements Pronstants {
     boolean turned = false; // For the driveTo angle command
     double angleOriginal; // initilializes the angle offset
     XboxController xbox;
+    double turbo = .7;
 
     public Drive(ADIS16448_IMU imu) {
 
@@ -90,7 +91,7 @@ public class Drive implements Pronstants {
     }
     public void xboxDrive(){
         left = (left + xbox.getRawAxis(1)) / 2;// averages the previous value and the current joystick value
-        right = (right + xbox.getRawAxis(4) / 2;
+        right = (right + xbox.getRawAxis(4)) / 2;
 
         if (Math.abs(xbox.getRawAxis(1)) > DEADZONE) {// doesn't drive if the joystick is close to zero but not zero
             leftDrive(left*turbo);// sets the motor to a value 3 times lower than it should be to be calmer

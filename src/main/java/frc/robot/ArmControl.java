@@ -97,8 +97,7 @@ public class ArmControl implements Pronstants {
      * corresponding talons
      */
     public void manualArmControl() { 
-        if(limitSwitch1 && limitSwitch2){
-        if (armController.getY(GenericHID.Hand.kLeft)) < -DEADZONE) { // if joystick is being used
+        if (armController.getY(GenericHID.Hand.kLeft) < -DEADZONE) { // if joystick is being used
             shoulderTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
         } else {
             shoulderTal.set(ControlMode.PercentOutput, 0);
@@ -108,7 +107,6 @@ public class ArmControl implements Pronstants {
         } else {
             elbowTal.set(ControlMode.PercentOutput, 0);
         }
-    }else{
         if (Math.abs(armController.getY(GenericHID.Hand.kLeft)) > DEADZONE) { // if joystick is being used
             shoulderTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
         } else {
@@ -120,7 +118,7 @@ public class ArmControl implements Pronstants {
             elbowTal.set(ControlMode.PercentOutput, 0);
         }
     }
-    }
+    
 
     public void suctionTimer() {
         if (getSuccValue() > SUCC_MAX) {
