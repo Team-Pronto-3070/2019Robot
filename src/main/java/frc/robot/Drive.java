@@ -7,11 +7,13 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.XboxController;
 
 public class Drive implements Pronstants {
     // Imported objects
     TalonSRX talonFL, talonBL, talonFR, talonBR; // Talon MC objects
     Joystick joyL, joyR; // Joystick objects
+    XboxController xbox;//xbox objects
     ADIS16448_IMU imu; // Gyro object
     double left = 0.0; // Left side ramp
     double right = 0.0; // Right side ramp
@@ -41,6 +43,8 @@ public class Drive implements Pronstants {
 
         joyL = new Joystick(JOYL_PORT); // Defines joysticks
         joyR = new Joystick(JOYR_PORT);
+
+        xbox = new XboxController(XBOX_PORT);
 
         this.imu = imu; // Sets gyro obj from arg obj
 
@@ -120,5 +124,27 @@ public class Drive implements Pronstants {
         talonBL.set(ControlMode.Velocity, (-left * 4096 / 600) * DRIVE_SCALER);
         talonFR.set(ControlMode.Follower, TALONBR_PORT);
         talonFL.set(ControlMode.Follower, TALONBL_PORT);
+    }
+
+    public void xboxDrive(){
+        left = (left + xbox.getRawAxis(1)) / 2;// averages the previous value and the current joystick value
+        right = (right + xbox.getRawAxis(4) / 2;
+
+        if (Math.abs(xbox.getRawAxis(1)) > DEADZONE) {// doesn't drive if the joystick is close to zero but not zero
+            leftDrive(left*turbo);// sets the motor to a value 3 times lower than it should be to be calmer
+        } else {
+            leftDrive(0); // If no input, stop left side
+        }
+
+        if (Math.abs(xbox.getRawAxis(1)) > DEADZONE) {// Same as left, but right
+            rightDrive(right*turbo);
+        } else {
+            rightDrive(0);
+        }
+        if(xbox.getRawButton(1)||xbox.getRawButton(1)){
+            turbo = 1;
+        }else{
+            turbo = .7;
+        }
     }
 }

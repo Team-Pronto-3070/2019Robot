@@ -157,9 +157,9 @@ public class Robot extends TimedRobot implements Pronstants {
   @Override
   public void teleopPeriodic() {
     arm.controlArm();
-    drive.tankDrive(); // Takes joystick inputs, curves inputs
+    //drive.tankDrive(); // Takes joystick inputs, curves inputs
     // and sets motors to curved amount
-
+    drive.xboxDrive();
 
     if (arm.armController.getTriggerAxis(Hand.kRight) == 1) {// if right bumper is pressed
       if (canPressComp) {// if button press will tilt
