@@ -85,6 +85,27 @@ public class Drive implements Pronstants {
                                                        // 0-360
 
     }
+    public void xboxDrive(){
+        left = (left + xbox.getRawAxis(1)) / 2;// averages the previous value and the current joystick value
+        right = (right + xbox.getRawAxis(4) / 2;
+
+        if (Math.abs(xbox.getRawAxis(1)) > DEADZONE) {// doesn't drive if the joystick is close to zero but not zero
+            leftDrive(left*turbo);// sets the motor to a value 3 times lower than it should be to be calmer
+        } else {
+            leftDrive(0); // If no input, stop left side
+        }
+
+        if (Math.abs(xbox.getRawAxis(1)) > DEADZONE) {// Same as left, but right
+            rightDrive(right*turbo);
+        } else {
+            rightDrive(0);
+        }
+        if(xbox.getRawButton(1)||xbox.getRawButton(1)){
+            turbo = 1;
+        }else{
+            turbo = .7;
+        }
+    }
 
     /**
      * This code makes the robot turn to a given angle, angle. It turns until the
