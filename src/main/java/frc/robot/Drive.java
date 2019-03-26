@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.XboxController;
 
 public class Drive implements Pronstants {
     // Imported objects
@@ -17,6 +18,7 @@ public class Drive implements Pronstants {
     double right = 0.0; // Right side ramp
     boolean turned = false; // For the driveTo angle command
     double angleOriginal; // initilializes the angle offset
+    XboxController xbox;
 
     public Drive(ADIS16448_IMU imu) {
 
@@ -40,6 +42,7 @@ public class Drive implements Pronstants {
 
         joyL = new Joystick(JOYL_PORT); // Defines joysticks
         joyR = new Joystick(JOYR_PORT);
+        xbox = new XboxController(XBOX_PORT);
 
         this.imu = imu; // Sets gyro obj from arg obj
 
