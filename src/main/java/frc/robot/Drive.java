@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.XboxController;
 
 public class Drive implements Pronstants {
     // Imported objects
@@ -17,6 +18,7 @@ public class Drive implements Pronstants {
     double right = 0.0; // Right side ramp
     boolean turned = false; // For the driveTo angle command
     double angleOriginal; // initilializes the angle offset
+    XboxController xbox;
     double turbo = .7;
 
     public Drive(ADIS16448_IMU imu) {
@@ -41,6 +43,7 @@ public class Drive implements Pronstants {
 
         joyL = new Joystick(JOYL_PORT); // Defines joysticks
         joyR = new Joystick(JOYR_PORT);
+        xbox = new XboxController(XBOX_PORT);
 
         this.imu = imu; // Sets gyro obj from arg obj
 
@@ -90,6 +93,27 @@ public class Drive implements Pronstants {
         return (angleOriginal - imu.getAngleZ()) % 360;// gets an angle relative to the robots starting position from
                                                        // 0-360
 
+    }
+    public void xboxDrive(){
+        left = (left + xbox.getRawAxis(1)) / 2;// averages the previous value and the current joystick value
+        right = (right + xbox.getRawAxis(4)) / 2;
+
+        if (Math.abs(xbox.getRawAxis(1)) > DEADZONE) {// doesn't drive if the joystick is close to zero but not zero
+            leftDrive(left*turbo);// sets the motor to a value 3 times lower than it should be to be calmer
+        } else {
+            leftDrive(0); // If no input, stop left side
+        }
+
+        if (Math.abs(xbox.getRawAxis(1)) > DEADZONE) {// Same as left, but right
+            rightDrive(right*turbo);
+        } else {
+            rightDrive(0);
+        }
+        if(xbox.getRawButton(1)||xbox.getRawButton(1)){
+            turbo = 1;
+        }else{
+            turbo = .7;
+        }
     }
 
     /**
