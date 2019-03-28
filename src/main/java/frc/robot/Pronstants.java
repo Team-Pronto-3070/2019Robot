@@ -3,7 +3,6 @@ package frc.robot;
 public interface Pronstants {
     //switch back the arm talons
     public static final int SHOULDER_TAL_PORT = 1; //Talon ports
-    public static final int ELBOW_TAL_PORT = 6; 
     public static final int TALONFR_PORT = 12;
     public static final int TALONBR_PORT = 13;
     public static final int TALONFL_PORT = 14;

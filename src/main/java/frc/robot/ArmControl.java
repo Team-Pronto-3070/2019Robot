@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 public class ArmControl implements Pronstants {
     XboxController armController;
-    TalonSRX shoulderTal, elbowTal;
+    TalonSRX shoulderTal;
     DoubleSolenoid succSol, tiltSol;
     Solenoid vacuumSol;
     AnalogInput succSensor;
@@ -31,7 +31,6 @@ public class ArmControl implements Pronstants {
         armController = new XboxController(ARMCONT_PORT);
 
         shoulderTal = new TalonSRX(SHOULDER_TAL_PORT); // Talon for shoulder joint
-        elbowTal = new TalonSRX(ELBOW_TAL_PORT); // Talon for elbow joint
 
         succSol = new DoubleSolenoid(SUCCSOL_PORT1, SUCCSOL_PORT2);
         tiltSol = new DoubleSolenoid(TILTSOL_PORT1, TILTSOL_PORT2);
@@ -40,10 +39,8 @@ public class ArmControl implements Pronstants {
         succSensor = new AnalogInput(SUCC_SENSOR_PORT);
 
         configTal(false, shoulderTal);
-        configTal(true, elbowTal);
 
         tuneTalon(shoulderTal, 0.2481, 0, 0, 0);
-        tuneTalon(elbowTal, 0.2481, 0, 0, 0);
     }
 
     /**
@@ -51,7 +48,6 @@ public class ArmControl implements Pronstants {
      */
     public void stop() {
         shoulderTal.set(ControlMode.PercentOutput, 0);
-        elbowTal.set(ControlMode.PercentOutput, 0);
     }
 
     /**
@@ -70,7 +66,6 @@ public class ArmControl implements Pronstants {
         }
         if (armController.getBackButtonPressed()) {
             shoulderTal.setSelectedSensorPosition(0);
-            elbowTal.setSelectedSensorPosition(0);
         }
         if (armController.getBumperPressed(Hand.kLeft)) {
             sucking = !sucking;
@@ -102,20 +97,10 @@ public class ArmControl implements Pronstants {
         } else {
             shoulderTal.set(ControlMode.PercentOutput, 0);
         }
-        if ((armController.getY(GenericHID.Hand.kRight)) < -DEADZONE) { // if joystick is being used
-            elbowTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kRight));
-        } else {
-            elbowTal.set(ControlMode.PercentOutput, 0);
-        }
         if (Math.abs(armController.getY(GenericHID.Hand.kLeft)) > DEADZONE) { // if joystick is being used
             shoulderTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
         } else {
             shoulderTal.set(ControlMode.PercentOutput, 0);
-        }
-        if (Math.abs(armController.getY(GenericHID.Hand.kRight)) > DEADZONE) { // if joystick is being used
-            elbowTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kRight));
-        } else {
-            elbowTal.set(ControlMode.PercentOutput, 0);
         }
     }
     
@@ -152,13 +137,7 @@ public class ArmControl implements Pronstants {
             return null;
         }
     }
-
-    /**
-     * sets up a timer for vacuum-hold solenoid
-     */
-    public void vacuumThing() {
-
-    }
+    
 
     public void configTal(boolean inverted, TalonSRX talon) {
         talon.configFactoryDefault();
@@ -173,17 +152,10 @@ public class ArmControl implements Pronstants {
         talon.configMotionAcceleration(3092, PID_TIMEOUT);
     }
 
-    public void tuneTalon(TalonSRX talon, double f, double p, double i, double d) {
-        talon.config_kF(PID_SLOT_IDX, f, PID_TIMEOUT);
-        talon.config_kP(PID_SLOT_IDX, p, PID_TIMEOUT);
-        talon.config_kI(PID_SLOT_IDX, i, PID_TIMEOUT);
-        talon.config_kD(PID_SLOT_IDX, d, PID_TIMEOUT);
-    }
 
     public void moveArm(double[] encValues) {
 
         double joint1 = shoulderTal.getSelectedSensorPosition();
-        double joint2 = elbowTal.getSelectedSensorPosition();
         double shoulderRatio = .15 + ((encValues[0] - joint1) / 50);
         SmartDashboard.putNumber("shoulderRatio", shoulderRatio);
         if (shoulderRatio >= 1) {
@@ -194,37 +166,19 @@ public class ArmControl implements Pronstants {
         if (Math.abs(joint1 - encValues[0]) < ARM_MOE) {
             shoulderRatio = 0;
         }
-
-        double elbowRatio = .15 + ((encValues[1] - joint2) / 50);
-        SmartDashboard.putNumber("elbowRatio", elbowRatio);
-        if (elbowRatio >= 1) {
-            elbowRatio = 1;
-        } else if (elbowRatio <= -1) {
-            elbowRatio = -1;
-        }
-
-        if (Math.abs(joint2 - encValues[1]) < ARM_MOE) {
-            elbowRatio = 0;
-        }
         SmartDashboard.putNumber("encvalues1", encValues[0]);
         SmartDashboard.putNumber("encvalue2", encValues[1]);
         SmartDashboard.putNumber("joint1", joint1);
         SmartDashboard.putNumber("joint2", joint2);
 
         shoulderTal.set(ControlMode.Position, shoulderRatio);
-        elbowTal.set(ControlMode.Position, -elbowRatio);
-
+        
     }
     public void moveArmV2(double[] encValues){
         if(Math.abs(shoulderTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE){
             shoulderTal.set(ControlMode.PercentOutput, .7);
         }else{
             shoulderTal.set(ControlMode.PercentOutput, 0);
-        }
-        if(Math.abs(elbowTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE){
-            elbowTal.set(ControlMode.PercentOutput, .7);
-        }else{
-            elbowTal.set(ControlMode.PercentOutput, 0);
         }
     }
 
