@@ -146,8 +146,6 @@ public class Robot extends TimedRobot implements Pronstants {
     SmartDashboard.putBoolean("succ", arm.succSol.get() == Value.kReverse);
 
     SmartDashboard.putNumber("vaccuum sensor", arm.getSuccValue());
-    arm.SUCC_MAX = SmartDashboard.getNumber("max", 0.0);
-    arm.SUCC_MIN = SmartDashboard.getNumber("min", 0.0);
   }
 
   public void teleopInit() {
@@ -189,4 +187,8 @@ public class Robot extends TimedRobot implements Pronstants {
   public void disabledPeriodic(){
     arm.succSol.set(Value.kForward);
   }
+public void autonomousPeriodic(){
+  arm.controlArm();
+  drive.tankDrive();
+ }
 }

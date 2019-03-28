@@ -24,8 +24,8 @@ public class ArmControl implements Pronstants {
     boolean sucking = false;
     boolean vacuum = true;
 
-    public static double SUCC_MIN = 900; // TODO Assign value to placeholder for minimum vacuum value
-    public static double SUCC_MAX = 1400; // TODO Assign value to placeholder for maximum vacuum value
+    public static double SUCC_MIN = 1200; // TODO Assign value to placeholder for minimum vacuum value
+    public static double SUCC_MAX = 1300; // TODO Assign value to placeholder for maximum vacuum value
 
     public ArmControl() {
         armController = new XboxController(ARMCONT_PORT);
@@ -69,20 +69,13 @@ public class ArmControl implements Pronstants {
         }
         if (armController.getBumperPressed(Hand.kLeft)) {
             sucking = !sucking;
-            if (!sucking) {
-                SmartDashboard.putBoolean("forward", true);
-                succSol.set(Value.kForward);
-                // succSol.set(succSol.get() == Value.kReverse ? Value.kForward :
-                // Value.kReverse);
-            }
-            vacuumSol.set(sucking);
             if (sucking) { // When right trigger is pressed, suction is on. When it isn't pressed it turns
                 suctionTimer();
-                SmartDashboard.putBoolean("forward", false);
                 armController.setRumble(RumbleType.kLeftRumble, 0.2);
             } else {
                 armController.setRumble(RumbleType.kLeftRumble, 0);
-
+                succSol.set(Value.kForward);
+                vacuumSol.set(true);
             }
         }
     }
@@ -91,25 +84,22 @@ public class ArmControl implements Pronstants {
      * takes in the joystick values from both of the xbox joysticks and moves the
      * corresponding talons
      */
-    public void manualArmControl() { 
-        if (armController.getY(GenericHID.Hand.kLeft) < -DEADZONE) { // if joystick is being used
-            shoulderTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
-        } else {
-            shoulderTal.set(ControlMode.PercentOutput, 0);
-        }
+    public void manualArmControl() {
+
         if (Math.abs(armController.getY(GenericHID.Hand.kLeft)) > DEADZONE) { // if joystick is being used
             shoulderTal.set(ControlMode.PercentOutput, armController.getY(GenericHID.Hand.kLeft));
         } else {
             shoulderTal.set(ControlMode.PercentOutput, 0);
         }
     }
-    
 
     public void suctionTimer() {
-        if (getSuccValue() > SUCC_MAX) {
+        if (succSensor.getValue() > SUCC_MAX) {
             succSol.set(Value.kReverse);
-        } else if (getSuccValue() < SUCC_MIN) {
+            vacuumSol.set(true);
+        } else if (succSensor.getValue() < SUCC_MIN) {
             succSol.set(Value.kForward);
+            vacuumSol.set(false);
         }
     }
 
@@ -174,15 +164,16 @@ public class ArmControl implements Pronstants {
         shoulderTal.set(ControlMode.Position, shoulderRatio);
         
     }
-    public void moveArmV2(double[] encValues){
-        if(Math.abs(shoulderTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE){
+
+    public void moveArmV2(double[] encValues) {
+        if (Math.abs(shoulderTal.getSelectedSensorPosition() - encValues[0]) > ARM_MOE) {
             shoulderTal.set(ControlMode.PercentOutput, .7);
-        }else{
+        } else {
             shoulderTal.set(ControlMode.PercentOutput, 0);
         }
     }
 
-    public double getSuccValue(){
+    public double getSuccValue() {
         return succSensor.getValue() * SUCC_CONSTANT;
 
     }
