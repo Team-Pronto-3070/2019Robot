@@ -49,7 +49,6 @@ public class Robot extends TimedRobot implements Pronstants {
   Drive drive;
   // LineSense lineSense;
 
-  ArmControl arm;
   Joystick joyL, joyR, joyArm;
   AnalogInput pressure;
   // DigitalInput lightSensor;
@@ -69,12 +68,10 @@ public class Robot extends TimedRobot implements Pronstants {
     joyL = new Joystick(0);
     joyR = new Joystick(1);
     drive = new Drive(imu);
-    arm = new ArmControl();
     pressure = new AnalogInput(0);
     comp = new Compressor(0);
     // lightSensor = new DigitalInput(0);
     comp.start();
-    arm.succSol.set(Value.kForward);
 
     // Get the UsbCamera from CameraServer
 
@@ -91,9 +88,6 @@ public class Robot extends TimedRobot implements Pronstants {
     CvSource outputStream = CameraServer.getInstance().putVideo("Rectangle", 320, 240);
     // imu.reset();
     // imu.calibrate();
-
-    arm.shoulderTal.setSelectedSensorPosition(0);
-    arm.elbowTal.setSelectedSensorPosition(0);
   }
 
   /**
@@ -119,12 +113,6 @@ public class Robot extends TimedRobot implements Pronstants {
     // SmartDashboard.putNumber("BL talon current",
     // drive.talonBL.getOutputCurrent());
 
-    SmartDashboard.putNumber("Shoulder talon current", arm.shoulderTal.getOutputCurrent());
-    SmartDashboard.putNumber("Elbow talon current", arm.elbowTal.getOutputCurrent());
-
-    SmartDashboard.putNumber("Shoulder Encoder", arm.shoulderTal.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Elbow Encoder", arm.elbowTal.getSelectedSensorPosition());
-
     // SmartDashboard.putBoolean("light", lightSensor.get());//used for testing if
     // the light sensor is detecting light or not
 
@@ -137,17 +125,6 @@ public class Robot extends TimedRobot implements Pronstants {
     SmartDashboard.putNumber("Angle of the z axis", drive.getAngle());// this gives the angle of the robot relative to
                                                                       // how it started
     SmartDashboard.putNumber("pressure", (pressure.getVoltage() - VOLTS_OFFSET) * VOLT_PSI_RATIO);
-    SmartDashboard.putNumber("joy value", arm.armController.getY(GenericHID.Hand.kRight));
-
-    SmartDashboard.putBoolean("sucking", arm.sucking);
-    
-
-    SmartDashboard.putBoolean("vacuum", arm.vacuumSol.get());
-    SmartDashboard.putBoolean("succ", arm.succSol.get() == Value.kReverse);
-
-    SmartDashboard.putNumber("vaccuum sensor", arm.getSuccValue());
-    arm.SUCC_MAX = SmartDashboard.getNumber("max", 0.0);
-    arm.SUCC_MIN = SmartDashboard.getNumber("min", 0.0);
   }
 
   public void teleopInit() {
@@ -158,25 +135,7 @@ public class Robot extends TimedRobot implements Pronstants {
    */
   @Override
   public void teleopPeriodic() {
-    arm.controlArm();
-    drive.tankDrive(); // Takes joystick inputs, curves inputs
-    // and sets motors to curved amount
-
-
-    if (arm.armController.getTriggerAxis(Hand.kRight) == 1) {// if right bumper is pressed
-      if (canPressComp) {// if button press will tilt
-        // set it to the opposite value
-        compGo = !compGo;
-        if (compGo) {
-          comp.start();
-        } else {
-          comp.stop();
-        }
-      }
-      canPressComp = false;// button press will no longer tilt
-    } else {// right bumper isnt pressed
-      canPressComp = true;// button press is able to tilt
-    }
+    drive.xboxDrive(); 
   }
 
   /**
@@ -184,9 +143,5 @@ public class Robot extends TimedRobot implements Pronstants {
    */
   @Override
   public void testPeriodic() {
-  }
-
-  public void disabledPeriodic(){
-    arm.succSol.set(Value.kForward);
   }
 }

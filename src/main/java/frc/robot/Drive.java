@@ -91,7 +91,7 @@ public class Drive implements Pronstants {
     }
     public void xboxDrive(){
         left = (left + xbox.getRawAxis(1)) / 2;// averages the previous value and the current joystick value
-        right = (right + xbox.getRawAxis(4)) / 2;
+        right = (right + xbox.getRawAxis(5)) / 2;
 
         if (Math.abs(xbox.getRawAxis(1)) > DEADZONE) {// doesn't drive if the joystick is close to zero but not zero
             leftDrive(left*turbo);// sets the motor to a value 3 times lower than it should be to be calmer
@@ -99,12 +99,12 @@ public class Drive implements Pronstants {
             leftDrive(0); // If no input, stop left side
         }
 
-        if (Math.abs(xbox.getRawAxis(1)) > DEADZONE) {// Same as left, but right
+        if (Math.abs(xbox.getRawAxis(5)) > DEADZONE) {// Same as left, but right
             rightDrive(right*turbo);
         } else {
             rightDrive(0);
         }
-        if(xbox.getRawButton(1)||xbox.getRawButton(1)){
+        if(xbox.getRawAxis(2)>.9||xbox.getRawAxis(3)>.9){
             turbo = 1;
         }else{
             turbo = .7;
