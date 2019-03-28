@@ -39,8 +39,6 @@ public class ArmControl implements Pronstants {
         succSensor = new AnalogInput(SUCC_SENSOR_PORT);
 
         configTal(false, shoulderTal);
-
-        tuneTalon(shoulderTal, 0.2481, 0, 0, 0);
     }
 
     /**
@@ -159,7 +157,6 @@ public class ArmControl implements Pronstants {
         SmartDashboard.putNumber("encvalues1", encValues[0]);
         SmartDashboard.putNumber("encvalue2", encValues[1]);
         SmartDashboard.putNumber("joint1", joint1);
-        SmartDashboard.putNumber("joint2", joint2);
 
         shoulderTal.set(ControlMode.Position, shoulderRatio);
         

@@ -93,7 +93,6 @@ public class Robot extends TimedRobot implements Pronstants {
     // imu.calibrate();
 
     arm.shoulderTal.setSelectedSensorPosition(0);
-    arm.elbowTal.setSelectedSensorPosition(0);
   }
 
   /**
@@ -120,10 +119,8 @@ public class Robot extends TimedRobot implements Pronstants {
     // drive.talonBL.getOutputCurrent());
 
     SmartDashboard.putNumber("Shoulder talon current", arm.shoulderTal.getOutputCurrent());
-    SmartDashboard.putNumber("Elbow talon current", arm.elbowTal.getOutputCurrent());
 
     SmartDashboard.putNumber("Shoulder Encoder", arm.shoulderTal.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Elbow Encoder", arm.elbowTal.getSelectedSensorPosition());
 
     // SmartDashboard.putBoolean("light", lightSensor.get());//used for testing if
     // the light sensor is detecting light or not
