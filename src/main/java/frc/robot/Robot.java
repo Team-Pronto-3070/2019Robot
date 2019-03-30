@@ -122,9 +122,6 @@ public class Robot extends TimedRobot implements Pronstants {
 
     // SmartDashboard.putBoolean("light", lightSensor.get());//used for testing if
     // the light sensor is detecting light or not
-
-    SmartDashboard.putNumber("left encoder", drive.talonFL.getSelectedSensorPosition());// puts the encoder values on
-                                                                                        // the drive
     // SmartDashboard.putNumber("right encoder",
     // drive.talonFR.getSelectedSensorPosition());
     // SmartDashboard.putBoolean("Talons:", drive.turned);//tells the driver if the
@@ -140,7 +137,7 @@ public class Robot extends TimedRobot implements Pronstants {
     SmartDashboard.putBoolean("vacuum", arm.vacuumSol.get());
     SmartDashboard.putBoolean("succ", arm.succSol.get() == Value.kReverse);
 
-    SmartDashboard.putNumber("vaccuum sensor", arm.getSuccValue());
+    SmartDashboard.putNumber("vaccuum sensor", arm.succSensor.getValue());
   }
 
   public void teleopInit() {

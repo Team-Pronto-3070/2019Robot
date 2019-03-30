@@ -24,8 +24,8 @@ public class ArmControl implements Pronstants {
     boolean sucking = false;
     boolean vacuum = true;
 
-    public static double SUCC_MIN = 1200; // TODO Assign value to placeholder for minimum vacuum value
-    public static double SUCC_MAX = 1300; // TODO Assign value to placeholder for maximum vacuum value
+    public static final double SUCC_MIN = 1200; // TODO Assign value to placeholder for minimum vacuum value
+    public static final double SUCC_MAX = 1300; // TODO Assign value to placeholder for maximum vacuum value
 
     public ArmControl() {
         armController = new XboxController(ARMCONT_PORT);
@@ -57,10 +57,13 @@ public class ArmControl implements Pronstants {
         if (armController.getBumperPressed(Hand.kRight)) {
             tiltSol.set(tiltSol.get() == Value.kReverse ? Value.kForward : Value.kReverse);
         }
+        if(sucking){
+            armController.setRumble(RumbleType.kLeftRumble, 0.2);
+            suctionTimer();
+        }
         if (armController.getBumperPressed(Hand.kLeft)) {
             sucking = !sucking;
             if (sucking) { // When right trigger is pressed, suction is on. When it isn't pressed it turns
-                suctionTimer();
                 armController.setRumble(RumbleType.kLeftRumble, 0.2);
             } else {
                 armController.setRumble(RumbleType.kLeftRumble, 0);
@@ -85,9 +88,11 @@ public class ArmControl implements Pronstants {
 
     public void suctionTimer() {
         if (succSensor.getValue() > SUCC_MAX) {
+            SmartDashboard.putBoolean("vaccumed", false);
             succSol.set(Value.kReverse);
             vacuumSol.set(true);
         } else if (succSensor.getValue() < SUCC_MIN) {
+            SmartDashboard.putBoolean("vaccumed", true);
             succSol.set(Value.kForward);
             vacuumSol.set(false);
         }

@@ -2,11 +2,11 @@ package frc.robot;
 
 public interface Pronstants {
     //switch back the arm talons
-    public static final int SHOULDER_TAL_PORT = 1; //Talon ports
-    public static final int TALONFR_PORT = 12;
-    public static final int TALONBR_PORT = 13;
-    public static final int TALONFL_PORT = 14;
-    public static final int TALONBL_PORT = 15;
+    public static final int SHOULDER_TAL_PORT = 0; //Talon ports
+    public static final int TALONFR_PORT = 14;
+    public static final int TALONBR_PORT = 15;
+    public static final int TALONFL_PORT = 12;
+    public static final int TALONBL_PORT = 13;
 
     public static final int JOYL_PORT = 0; //Joystick ports
     public static final int JOYR_PORT = 1;
@@ -19,7 +19,7 @@ public interface Pronstants {
     public static final int TILTSOL_PORT2 = 3; //TODO assign port number Tilt piston solenoid*
     public static final int VACUSOL_PORT = 4;
 
-    public static final double DEADZONE = .1; //Drive joystick deadzone
+    public static final double DEADZONE = .15; //Drive joystick deadzone
 
     public static final double GYRO_DEADZONE = 1.0;//Gyro deadzone
 
