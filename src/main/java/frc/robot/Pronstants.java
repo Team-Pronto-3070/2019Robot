@@ -11,7 +11,7 @@ public interface Pronstants {
     public static final int JOYL_PORT = 0; //Joystick ports
     public static final int JOYR_PORT = 1;
     public static final int ARMCONT_PORT = 2;
-    public static final int XBOX_PORT = 2;
+    public static final int XBOX_PORT = 3;
 
     public static final int SUCCSOL_PORT1 = 0; //TODO assign port number Suction cup solenoid*
     public static final int TILTSOL_PORT1 = 2; //TODO assign port number Tilt piston solenoid*

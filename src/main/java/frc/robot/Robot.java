@@ -51,7 +51,6 @@ public class Robot extends TimedRobot implements Pronstants {
 
   ArmControl arm;
   Joystick joyL, joyR, joyArm;
-  AnalogInput pressure;
   // DigitalInput lightSensor;
   // ShuffleboardTab shuffleboardtab;
   private NetworkTableEntry gyroYawEntry;
@@ -70,7 +69,6 @@ public class Robot extends TimedRobot implements Pronstants {
     joyR = new Joystick(1);
     drive = new Drive(imu);
     arm = new ArmControl();
-    pressure = new AnalogInput(0);
     comp = new Compressor(0);
     // lightSensor = new DigitalInput(0);
     comp.start();
@@ -132,8 +130,8 @@ public class Robot extends TimedRobot implements Pronstants {
     // SmartDashboard.putBoolean("Talons:", drive.turned);//tells the driver if the
     // robot has turned
     SmartDashboard.putNumber("Angle of the z axis", drive.getAngle());// this gives the angle of the robot relative to
-                                                                      // how it started
-    SmartDashboard.putNumber("pressure", (pressure.getVoltage() - VOLTS_OFFSET) * VOLT_PSI_RATIO);
+    //                                                                   // how it started
+    // SmartDashboard.putNumber("pressure", (pressure.getVoltage() - VOLTS_OFFSET) * VOLT_PSI_RATIO);
     SmartDashboard.putNumber("joy value", arm.armController.getY(GenericHID.Hand.kRight));
 
     SmartDashboard.putBoolean("sucking", arm.sucking);
@@ -154,7 +152,7 @@ public class Robot extends TimedRobot implements Pronstants {
   @Override
   public void teleopPeriodic() {
     arm.controlArm();
-    drive.tankDrive(); // Takes joystick inputs, curves inputs
+    drive.xboxDrive(); // Takes joystick inputs, curves inputs
     // and sets motors to curved amount
 
 

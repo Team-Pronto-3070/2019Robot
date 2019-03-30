@@ -52,18 +52,10 @@ public class ArmControl implements Pronstants {
      * Combines all the arm methods into one easy to use method
      */
     public void controlArm() {
-        if (getWantedState() == null) {
-            manualArmControl();
-        } else {
-            moveArm(getWantedState());
-            // tiltSol.set()
-        }
+       manualArmControl();
 
         if (armController.getBumperPressed(Hand.kRight)) {
             tiltSol.set(tiltSol.get() == Value.kReverse ? Value.kForward : Value.kReverse);
-        }
-        if (armController.getBackButtonPressed()) {
-            shoulderTal.setSelectedSensorPosition(0);
         }
         if (armController.getBumperPressed(Hand.kLeft)) {
             sucking = !sucking;
@@ -129,15 +121,7 @@ public class ArmControl implements Pronstants {
 
     public void configTal(boolean inverted, TalonSRX talon) {
         talon.configFactoryDefault();
-        talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
         talon.setInverted(inverted);
-        talon.configNominalOutputForward(0, PID_TIMEOUT);
-        talon.configNominalOutputReverse(0, PID_TIMEOUT);
-        talon.configPeakOutputForward(1, PID_TIMEOUT);
-        talon.configPeakOutputReverse(-1, PID_TIMEOUT);
-        talon.selectProfileSlot(PID_SLOT_IDX, PID_LOOP_IDX);
-        talon.configMotionCruiseVelocity(3092, PID_TIMEOUT);
-        talon.configMotionAcceleration(3092, PID_TIMEOUT);
     }
 
 
