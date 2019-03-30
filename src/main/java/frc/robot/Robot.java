@@ -181,6 +181,6 @@ public class Robot extends TimedRobot implements Pronstants {
   }
 public void autonomousPeriodic(){
   arm.controlArm();
-  drive.tankDrive();
+  drive.xboxDrive();
  }
 }
