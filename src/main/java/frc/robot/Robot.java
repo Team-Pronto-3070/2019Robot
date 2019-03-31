@@ -45,6 +45,7 @@ public class Robot extends TimedRobot implements Pronstants {
   boolean canPressComp = true;
   boolean compGo = true;
 
+
   Drive drive;
   // LineSense lineSense;
 
@@ -66,7 +67,7 @@ public class Robot extends TimedRobot implements Pronstants {
     // lineSense = new LineSense(drive, imu);
     joyL = new Joystick(0);
     joyR = new Joystick(1);
-    drive = new Drive(imu, comp);
+    drive = new Drive(imu);
     arm = new ArmControl();
     comp = new Compressor(0);
     // lightSensor = new DigitalInput(0);
@@ -105,10 +106,15 @@ public class Robot extends TimedRobot implements Pronstants {
   public void robotPeriodic() {
     SmartDashboard.putNumber("Accel-Z", imu.getAccelZ());// not used currently, might be used later
 
-    SmartDashboard.putNumber("FR talon current", drive.talonFR.getOutputCurrent());//outputs the current of the talons to the dashboard
-    SmartDashboard.putNumber("FL talon current", drive.talonFL.getOutputCurrent());
-    SmartDashboard.putNumber("BR talon current", drive.talonBR.getOutputCurrent());
-    SmartDashboard.putNumber("BL talon current",drive.talonBL.getOutputCurrent());
+    // SmartDashboard.putNumber("FR talon current",
+    // drive.talonFR.getOutputCurrent());//outputs the current of the talons to the
+    // dashboard
+    // SmartDashboard.putNumber("FL talon current",
+    // drive.talonFL.getOutputCurrent());
+    // SmartDashboard.putNumber("BR talon current",
+    // drive.talonBR.getOutputCurrent());
+    // SmartDashboard.putNumber("BL talon current",
+    // drive.talonBL.getOutputCurrent());
 
     SmartDashboard.putNumber("Shoulder talon current", arm.shoulderTal.getOutputCurrent());
 
@@ -146,6 +152,7 @@ public class Robot extends TimedRobot implements Pronstants {
     drive.xboxDrive(); // Takes joystick inputs, curves inputs
     // and sets motors to curved amount
 
+
     if (arm.armController.getTriggerAxis(Hand.kRight) == 1) {// if right bumper is pressed
       if (canPressComp) {// if button press will tilt
         // set it to the opposite value
@@ -169,12 +176,11 @@ public class Robot extends TimedRobot implements Pronstants {
   public void testPeriodic() {
   }
 
-  public void disabledPeriodic() {
+  public void disabledPeriodic(){
     arm.succSol.set(Value.kForward);
   }
-
-  public void autonomousPeriodic() {
-    arm.controlArm();
-    drive.xboxDrive();
-  }
+public void autonomousPeriodic(){
+  arm.controlArm();
+  drive.xboxDrive();
+ }
 }
