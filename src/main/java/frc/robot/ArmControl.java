@@ -52,14 +52,19 @@ public class ArmControl implements Pronstants {
      * Combines all the arm methods into one easy to use method
      */
     public void controlArm() {
-       manualArmControl();
+        manualArmControl();
 
         if (armController.getBumperPressed(Hand.kRight)) {
             tiltSol.set(tiltSol.get() == Value.kReverse ? Value.kForward : Value.kReverse);
         }
-        if(sucking){
+        if (sucking) {
             armController.setRumble(RumbleType.kLeftRumble, 0.2);
-            suctionTimer();
+            if (armController.getBumper(Hand.kRight)) {
+                succSol.set(Value.kReverse);
+                vacuumSol.set(true);
+            } else {
+                suctionTimer();
+            }
         }
         if (armController.getBumperPressed(Hand.kLeft)) {
             sucking = !sucking;
@@ -122,13 +127,11 @@ public class ArmControl implements Pronstants {
             return null;
         }
     }
-    
 
     public void configTal(boolean inverted, TalonSRX talon) {
         talon.configFactoryDefault();
         talon.setInverted(inverted);
     }
-
 
     public void moveArm(double[] encValues) {
 
@@ -148,7 +151,7 @@ public class ArmControl implements Pronstants {
         SmartDashboard.putNumber("joint1", joint1);
 
         shoulderTal.set(ControlMode.Position, shoulderRatio);
-        
+
     }
 
     public void moveArmV2(double[] encValues) {
