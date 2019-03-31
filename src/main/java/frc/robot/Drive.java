@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.Compressor;
 
 public class Drive implements Pronstants {
     // Imported objects
@@ -20,8 +21,9 @@ public class Drive implements Pronstants {
     double angleOriginal; // initilializes the angle offset
     XboxController xbox;
     double turbo = .7;
+    Compressor comp;
 
-    public Drive(ADIS16448_IMU imu) {
+    public Drive(ADIS16448_IMU imu, Compressor comp) {
 
         talonFL = new TalonSRX(TALONFL_PORT); // Defines Talon objects
         talonBL = new TalonSRX(TALONBL_PORT);
@@ -46,7 +48,7 @@ public class Drive implements Pronstants {
         xbox = new XboxController(XBOX_PORT);
 
         this.imu = imu; // Sets gyro obj from arg obj
-
+        this.comp = comp;
         angleOriginal = imu.getAngleZ();// sets up
 
     }
@@ -111,8 +113,10 @@ public class Drive implements Pronstants {
         }
         if(xbox.getRawAxis(2)>.9||(xbox.getRawAxis(3)>.9)){
             turbo = 1;
+            comp.stop();
         }else{
             turbo = .7;
+            comp.start();
         }
     }
 
