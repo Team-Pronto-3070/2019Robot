@@ -80,9 +80,9 @@ public class Drive implements Pronstants {
             rightDrive(0);
         }
         if(joyL.getRawButton(1)||joyR.getRawButton(1)){
-            turbo = 1;
+            turbo = .75;
         }else{
-            turbo = .7;
+            turbo = .5;
         }
     }
 
