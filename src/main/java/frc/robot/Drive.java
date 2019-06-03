@@ -85,7 +85,8 @@ public class Drive implements Pronstants {
         if(joyL.getRawButton(1)||joyR.getRawButton(1)){
             turbo = .5;
         }else{
-            turbo = .3;
+            turbo = .3
+            ;
         }
     }
 
@@ -110,9 +111,9 @@ public class Drive implements Pronstants {
             rightDrive(0);
         }
         if(xbox.getRawAxis(2)>.9||(xbox.getRawAxis(3)>.9)){
-            turbo = 1;
+            turbo = .5;
         }else{
-            turbo = .7;
+            turbo = .3;
         }
     }
 
